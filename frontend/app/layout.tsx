@@ -9,8 +9,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Gestão Financeira Pessoal",
-  description: "Sistema de gestão financeira pessoal - TCC",
+  title: "Sob Controle - Gestão Financeira Pessoal",
+  description: "Sob Controle - Sistema inteligente de gestão financeira pessoal. Controle suas finanças, defina metas e alcance seus objetivos.",
+  icons: {
+    icon: '/novaLOGO.png',
+  },
 };
 
 export default function RootLayout({

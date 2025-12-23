@@ -4,12 +4,13 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { 
-  LayoutDashboard, 
-  Wallet, 
-  Tag, 
-  ArrowLeftRight, 
-  Target, 
+import Image from 'next/image'
+import {
+  LayoutDashboard,
+  Wallet,
+  Tag,
+  ArrowLeftRight,
+  Target,
   LogOut,
   Menu,
   X
@@ -34,11 +35,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-600 rounded-lg">
-                <Wallet className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">FinanceApp</span>
+            <Link href="/dashboard" className="flex items-center space-x-3">
+              <Image
+                src="/novaLOGO.png"
+                alt="Sob Controle Logo"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Sob Controle</span>
             </Link>
 
             {/* Desktop Navigation */}

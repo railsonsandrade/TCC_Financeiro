@@ -254,9 +254,9 @@ class LancamentoService:
         )
 
         return {
-            'total_receitas': total_receitas,
-            'total_despesas': total_despesas,
-            'saldo': total_receitas - total_despesas
+            'total_receitas': str(total_receitas),
+            'total_despesas': str(total_despesas),
+            'saldo': str(total_receitas - total_despesas)
         }
 
     def atualizar_lancamento(

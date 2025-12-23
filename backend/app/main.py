@@ -1,5 +1,5 @@
 """
-TCC Financeira - API Principal
+Sob Controle - API Principal
 Entry point da aplicação FastAPI
 """
 

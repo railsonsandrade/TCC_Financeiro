@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # Application
-    APP_NAME: str = "TCC Financeira"
+    APP_NAME: str = "Sob Controle"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
     

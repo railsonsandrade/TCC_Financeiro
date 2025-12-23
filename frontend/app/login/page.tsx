@@ -76,7 +76,7 @@ export default function LoginPage() {
         </div>
 
         <div className="text-blue-100 text-sm">
-          © 2025 TCC Financeira. Todos os direitos reservados.
+          © 2025 Sob Controle. Todos os direitos reservados.
         </div>
       </div>
 

@@ -48,20 +48,27 @@ async def criar_meta(
         )
 
 
-@router.get("", response_model=List[MetaFinanceiraResponse], summary="Listar metas")
+@router.get("", response_model=List[MetaFinanceiraComProgresso], summary="Listar metas")
 async def listar_metas(
     status_meta: Optional[str] = Query(None, alias="status", description="Filtrar por status (Em Andamento/Concluída/Cancelada)"),
     current_user: UsuarioResponse = Depends(get_current_user)
 ):
     """
-    Lista todas as metas do usuário autenticado
+    Lista todas as metas do usuário autenticado com progresso
     
     - **status**: Filtrar por status (Em Andamento, Concluída, Cancelada) - opcional
     """
     try:
         meta_service = MetaFinanceiraService()
-        metas = meta_service.listar_metas(current_user.id_usuario, status_meta)
-        return metas
+        
+        # Obter todas as metas com progresso
+        todas_metas = meta_service.listar_metas_com_progresso(current_user.id_usuario)
+        
+        # Filtrar por status se necessário
+        if status_meta:
+            return [meta for meta in todas_metas if meta.status == status_meta]
+        else:
+            return todas_metas
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -180,6 +187,64 @@ async def atualizar_meta(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erro ao atualizar meta: {str(e)}"
+        )
+
+
+@router.patch("/{id_meta}/concluir", response_model=MetaFinanceiraResponse, summary="Concluir meta")
+async def concluir_meta(
+    id_meta: int,
+    current_user: UsuarioResponse = Depends(get_current_user)
+):
+    """
+    Marca uma meta como concluída
+    """
+    try:
+        meta_service = MetaFinanceiraService()
+        from app.schemas.meta_financeira import MetaFinanceiraUpdate
+        meta_atualizada = meta_service.atualizar_meta(
+            id_meta, 
+            current_user.id_usuario, 
+            MetaFinanceiraUpdate(status="Concluída")
+        )
+        return meta_atualizada
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao concluir meta: {str(e)}"
+        )
+
+
+@router.patch("/{id_meta}/cancelar", response_model=MetaFinanceiraResponse, summary="Cancelar meta")
+async def cancelar_meta(
+    id_meta: int,
+    current_user: UsuarioResponse = Depends(get_current_user)
+):
+    """
+    Marca uma meta como cancelada
+    """
+    try:
+        meta_service = MetaFinanceiraService()
+        from app.schemas.meta_financeira import MetaFinanceiraUpdate
+        meta_atualizada = meta_service.atualizar_meta(
+            id_meta, 
+            current_user.id_usuario, 
+            MetaFinanceiraUpdate(status="Cancelada")
+        )
+        return meta_atualizada
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao cancelar meta: {str(e)}"
         )
 
 

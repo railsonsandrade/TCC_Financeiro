@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Toast, ToastType } from '@/components/ui/toast'
 import Link from 'next/link'
-import { Wallet, User, Mail, Lock, ArrowRight } from 'lucide-react'
+import Image from 'next/image'
+import { User, Mail, Lock, ArrowRight, CheckCircle2 } from 'lucide-react'
 
 export default function RegisterPage() {
   const { register } = useAuth()
@@ -44,7 +45,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative overflow-hidden">
       {/* Toast */}
       {toast && (
         <Toast
@@ -54,72 +55,99 @@ export default function RegisterPage() {
         />
       )}
 
-      {/* Lado Esquerdo - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 flex-col justify-between text-white">
-        <div>
-          <div className="flex items-center space-x-3">
-            <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-              <Wallet className="w-8 h-8" />
-            </div>
-            <h1 className="text-3xl font-bold">Gestão Financeira</h1>
-          </div>
-        </div>
+      {/* Lado Esquerdo - Branding com gradiente moderno */}
+      <div className="hidden lg:flex lg:w-1/2 gradient-success p-12 flex-col justify-between text-white relative overflow-hidden">
+        {/* Elementos decorativos de fundo */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
-        <div className="space-y-6">
-          <h2 className="text-4xl font-bold leading-tight">
-            Comece a organizar suas finanças hoje mesmo
-          </h2>
-          <p className="text-blue-100 text-lg">
-            Crie sua conta gratuitamente e tenha acesso a todas as funcionalidades.
-          </p>
-          <div className="grid grid-cols-2 gap-4 pt-8">
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <p className="text-3xl font-bold">Fácil</p>
-              <p className="text-blue-100 text-sm">De usar</p>
+        <div className="relative z-10">
+          <div className="flex items-center space-x-4 animate-fade-in">
+            <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm border border-white/30 shadow-lg">
+              <Image
+                src="/novaLOGO.png"
+                alt="Sob Controle Logo"
+                width={48}
+                height={48}
+                className="rounded-lg"
+              />
             </div>
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <p className="text-3xl font-bold">Seguro</p>
-              <p className="text-blue-100 text-sm">100%</p>
+            <div>
+              <h1 className="text-4xl font-bold">Sob Controle</h1>
+              <p className="text-green-100 text-sm">Seu dinheiro sob controle</p>
             </div>
           </div>
         </div>
 
-        <div className="text-blue-100 text-sm">
-          © 2025 TCC Financeira. Todos os direitos reservados.
+        <div className="space-y-8 relative z-10 animate-slide-up">
+          <div className="space-y-4">
+            <h2 className="text-5xl font-bold leading-tight">
+              Comece a organizar suas finanças hoje
+            </h2>
+            <p className="text-green-100 text-xl leading-relaxed">
+              Crie sua conta gratuitamente e tenha acesso completo a todas as funcionalidades.
+            </p>
+          </div>
+
+          <div className="space-y-3 pt-4">
+            <div className="flex items-center space-x-3">
+              <CheckCircle2 className="w-6 h-6 text-green-200" />
+              <p className="text-lg">Controle total de receitas e despesas</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle2 className="w-6 h-6 text-green-200" />
+              <p className="text-lg">Metas financeiras personalizadas</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle2 className="w-6 h-6 text-green-200" />
+              <p className="text-lg">Relatórios e análises detalhadas</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-green-100 text-sm relative z-10">
+          © 2025 Sob Controle. Todos os direitos reservados.
         </div>
       </div>
 
-      {/* Lado Direito - Formulário */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
-        <div className="w-full max-w-md">
+      {/* Lado Direito - Formulário moderno */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="w-full max-w-md animate-fade-in">
           {/* Logo Mobile */}
           <div className="lg:hidden flex items-center justify-center space-x-3 mb-8">
-            <div className="bg-blue-600 p-3 rounded-xl">
-              <Wallet className="w-6 h-6 text-white" />
+            <Image
+              src="/novaLOGO.png"
+              alt="Sob Controle Logo"
+              width={48}
+              height={48}
+              className="rounded-lg shadow-lg"
+            />
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">Sob Controle</h1>
+              <p className="text-sm text-gray-600">Seu dinheiro sob controle</p>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Gestão Financeira</h1>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100">
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Criar conta</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Criar conta gratuita 🚀</h2>
               <p className="text-gray-600">Preencha os dados abaixo para começar</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Nome completo
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <Input
                     type="text"
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
-                    className="pl-10"
+                    className="pl-12 h-12 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-xl"
                     placeholder="João Silva"
                     required
                     disabled={loading}
@@ -128,18 +156,18 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Email
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-gray-400" />
                   </div>
                   <Input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
+                    className="pl-12 h-12 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-xl"
                     placeholder="seu@email.com"
                     required
                     disabled={loading}
@@ -148,39 +176,39 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Senha
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <Input
                     type="password"
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
-                    className="pl-10"
+                    className="pl-12 h-12 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-xl"
                     placeholder="••••••••"
                     required
                     disabled={loading}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Mínimo de 6 caracteres</p>
+                <p className="text-xs text-gray-500 mt-1.5">Mínimo de 6 caracteres</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Confirmar senha
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <Input
                     type="password"
                     value={confirmarSenha}
                     onChange={(e) => setConfirmarSenha(e.target.value)}
-                    className="pl-10"
+                    className="pl-12 h-12 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-xl"
                     placeholder="••••••••"
                     required
                     disabled={loading}
@@ -190,7 +218,7 @@ export default function RegisterPage() {
 
               <Button
                 type="submit"
-                className="w-full h-12 text-base font-semibold group"
+                className="w-full h-13 text-base font-semibold gradient-success hover:opacity-90 transition-all duration-200 rounded-xl shadow-lg hover:shadow-xl group mt-6"
                 disabled={loading}
               >
                 {loading ? (
@@ -200,7 +228,7 @@ export default function RegisterPage() {
                   </div>
                 ) : (
                   <div className="flex items-center justify-center">
-                    Criar conta
+                    Criar minha conta gratuita
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 )}
@@ -212,7 +240,7 @@ export default function RegisterPage() {
                 Já tem uma conta?{' '}
                 <Link
                   href="/login"
-                  className="text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+                  className="text-green-600 hover:text-green-700 font-semibold hover:underline transition-colors"
                 >
                   Fazer login
                 </Link>

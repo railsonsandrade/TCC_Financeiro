@@ -12,10 +12,22 @@ echo.
 
 REM Verificar se o banco de dados existe
 if not exist "database\tcc_financeira.db" (
-    echo ERRO: Banco de dados nao encontrado!
-    echo Execute primeiro o script de criacao do banco.
-    pause
-    exit /b 1
+    echo [INFO] Banco de dados nao encontrado!
+    echo [INFO] Criando banco de dados...
+    cd database
+    sqlite3 tcc_financeira.db < schema_sqlite.sql
+    cd ..
+    echo [OK] Banco de dados criado!
+    echo.
+    
+    REM Criar dados de teste
+    echo [INFO] Criando dados de teste...
+    call venv\Scripts\activate.bat
+    cd backend
+    python seed_test_data.py
+    cd ..
+    echo [OK] Dados de teste criados!
+    echo.
 )
 
 echo [OK] Banco de dados encontrado
@@ -23,22 +35,33 @@ echo.
 
 REM Verificar se o ambiente virtual existe
 if not exist "venv\Scripts\python.exe" (
-    echo ERRO: Ambiente virtual nao encontrado!
-    echo Execute primeiro: python -m venv venv
-    pause
-    exit /b 1
+    echo [INFO] Ambiente virtual nao encontrado!
+    echo [INFO] Criando ambiente virtual Python...
+    python -m venv venv
+    echo [OK] Ambiente virtual criado!
+    echo.
 )
 
 echo [OK] Ambiente virtual encontrado
 echo.
 
+REM Verificar dependencias do backend
+echo [INFO] Verificando dependencias do backend...
+call venv\Scripts\activate.bat
+cd backend
+pip install -q -r requirements.txt
+cd ..
+echo [OK] Dependencias do backend OK
+echo.
+
 REM Verificar se node_modules existe
 if not exist "frontend\node_modules" (
-    echo AVISO: Dependencias do frontend nao instaladas
-    echo Instalando dependencias...
+    echo [INFO] Dependencias do frontend nao instaladas
+    echo [INFO] Instalando dependencias do frontend...
     cd frontend
     call npm install
     cd ..
+    echo [OK] Dependencias instaladas!
     echo.
 )
 
@@ -51,14 +74,18 @@ echo ============================================================
 echo.
 
 REM Iniciar Backend em uma nova janela
-echo Iniciando Backend (porta 8000)...
+echo [INFO] Iniciando Backend (porta 8000)...
 start "Backend - FastAPI" cmd /k "cd /d %~dp0backend && ..\venv\Scripts\python.exe -m uvicorn app.main:app --reload"
 timeout /t 3 /nobreak >nul
 
 REM Iniciar Frontend em uma nova janela
-echo Iniciando Frontend (porta 3000)...
+echo [INFO] Iniciando Frontend (porta 3000)...
 start "Frontend - Next.js" cmd /k "cd /d %~dp0frontend && npm run dev"
-timeout /t 3 /nobreak >nul
+timeout /t 8 /nobreak >nul
+
+REM Abrir navegador
+echo [INFO] Abrindo navegador...
+start http://localhost:3000
 
 echo.
 echo ============================================================
@@ -83,20 +110,5 @@ echo      Senha: 123456
 echo.
 echo ============================================================
 echo.
-echo Pressione qualquer tecla para abrir o navegador...
+echo Pressione qualquer tecla para fechar esta janela...
 pause >nul
-
-REM Aguardar mais um pouco para garantir que os servidores iniciaram
-timeout /t 5 /nobreak >nul
-
-REM Abrir navegador
-start http://localhost:3000
-
-echo.
-echo Navegador aberto!
-echo.
-echo Esta janela pode ser fechada.
-echo As janelas do Backend e Frontend devem permanecer abertas.
-echo.
-pause
-
