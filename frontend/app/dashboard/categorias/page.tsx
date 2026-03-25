@@ -72,7 +72,7 @@ export default function CategoriasPage() {
     setFormData({
       nome: categoria.nome,
       tipo: categoria.tipo,
-      grupo_50_30_20: categoria.grupo_50_30_20,
+      grupo_50_30_20: categoria.grupo_50_30_20 ?? undefined,
       cor: categoria.cor || '#3B82F6'
     })
     setShowModal(true)
@@ -116,20 +116,20 @@ export default function CategoriasPage() {
 
       {/* Filtros */}
       <div className="flex space-x-2">
-        <Button 
+        <Button
           variant={filtroTipo === '' ? 'default' : 'outline'}
           onClick={() => setFiltroTipo('')}
         >
           Todas
         </Button>
-        <Button 
+        <Button
           variant={filtroTipo === 'Receita' ? 'default' : 'outline'}
           onClick={() => setFiltroTipo('Receita')}
         >
           <TrendingUp className="w-4 h-4 mr-2" />
           Receitas
         </Button>
-        <Button 
+        <Button
           variant={filtroTipo === 'Despesa' ? 'default' : 'outline'}
           onClick={() => setFiltroTipo('Despesa')}
         >
@@ -152,25 +152,25 @@ export default function CategoriasPage() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-4 h-4 rounded-full" 
+                        <div
+                          className="w-4 h-4 rounded-full"
                           style={{ backgroundColor: categoria.cor || '#10b981' }}
                         />
                         <span className="font-medium">{categoria.nome}</span>
                       </div>
                     </div>
                     <div className="flex space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="flex-1"
                         onClick={() => handleEdit(categoria)}
                       >
                         <Pencil className="w-3 h-3 mr-1" />
                         Editar
                       </Button>
-                      <Button 
-                        variant="destructive" 
+                      <Button
+                        variant="destructive"
                         size="sm"
                         onClick={() => handleDelete(categoria.id_categoria)}
                       >
@@ -196,8 +196,8 @@ export default function CategoriasPage() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-4 h-4 rounded-full" 
+                        <div
+                          className="w-4 h-4 rounded-full"
                           style={{ backgroundColor: categoria.cor || '#ef4444' }}
                         />
                         <span className="font-medium">{categoria.nome}</span>
@@ -209,17 +209,17 @@ export default function CategoriasPage() {
                       </p>
                     )}
                     <div className="flex space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="flex-1"
                         onClick={() => handleEdit(categoria)}
                       >
                         <Pencil className="w-3 h-3 mr-1" />
                         Editar
                       </Button>
-                      <Button 
-                        variant="destructive" 
+                      <Button
+                        variant="destructive"
                         size="sm"
                         onClick={() => handleDelete(categoria.id_categoria)}
                       >
