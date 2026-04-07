@@ -36,11 +36,20 @@
 - Acompanhamento visual do progresso
 - Cálculo automático de percentual atingido
 
-### 📈 Dashboard Analítico
-- Visão geral consolidada das finanças
-- Cards com saldo total, receitas e despesas
-- Lista de contas ativas
-- Progresso das metas em andamento
+### 📈 Dashboard Analítico Dinâmico
+- **Grid Configurável**: Layout dinâmico com suporte a `Drag and Drop`, permitindo reposicionar e redimensionar os gráficos da forma que o usuário desejar.
+- **Gráficos Personalizáveis**: Componentes integrados (`Recharts`) com edição de período (Específico ou Meses Variáveis) e comparação cruzada.
+- **Persistência Individual**: Posições salvas por usuário direto no banco de dados SQLite.
+
+### 🤖 Assistente Virtual "PatarIA"
+- **Inteligência Artificial Integrada**: Utiliza a poderosa **Groq API** como motor de LLM (Llama 3 / Mistral) atuando via requisições REST seguras no back-end.
+- **Insights Profundos**: Faz a leitura dos seus hábitos de despesa, metas atrasadas e dá sugestões detalhadas orientadas a equilibrar os limites do usuário.
+
+### 📤 Importação de Dados
+- **Uplod Inteligente**: Utilitário nativo implementado com componentes de dropzone de CSV para registrar faturas múltiplas sem digitação maçante.
+
+### 🌓 Interface e Dark Mode Pleno
+- **Ambiente Imersivo**: Todo o frontend agora é abraçado por um Dark Mode construído sobre utilitários TailwindCSS (Cores hex dark, Glassmorfismo e transições interativas).
 
 ---
 

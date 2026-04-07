@@ -126,11 +126,6 @@ async def obter_totais_periodo(
 ):
     """
     Calcula totais de receitas e despesas em um período
-    
-    Retorna:
-    - total_receitas: Total de receitas pagas
-    - total_despesas: Total de despesas pagas
-    - saldo: Diferença entre receitas e despesas
     """
     try:
         lancamento_service = LancamentoService()
@@ -145,6 +140,54 @@ async def obter_totais_periodo(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erro ao calcular totais: {str(e)}"
         )
+
+
+@router.get("/analytics/gastos-por-categoria", summary="Estatísticas agrupadas de gastos por categoria")
+async def gastos_por_categoria(
+    mes_ano: str = Query(..., description="Formato YYYY-MM"),
+    current_user: UsuarioResponse = Depends(get_current_user)
+):
+    """Retorna os gastos agrupados por categoria para gráficos (ex: Pizza ou Barras)"""
+    from app.utils.database import db
+    try:
+        query = """
+            SELECT categoria, tipo_categoria, grupo_50_30_20, CAST(total_valor AS FLOAT) as valor
+            FROM vw_resumo_categoria_mes
+            WHERE id_usuario = ? AND mes_ano = ?
+        """
+        rows = db.fetch_all(query, (current_user.id_usuario, mes_ano))
+        return [dict(r) for r in rows]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro no analytic: {str(e)}")
+
+
+@router.get("/analytics/evolucao-saldo", summary="Evolução financeira do usuário mês a mês")
+async def evolucao_saldo(
+    limite_meses: int = Query(6, description="Quantidade de meses para retroceder"),
+    current_user: UsuarioResponse = Depends(get_current_user)
+):
+    """Retorna o balanço de despesas/receitas agregado por mês para gráficos de linha/área"""
+    from app.utils.database import db
+    try:
+        query = """
+            SELECT 
+                strftime('%Y-%m', data) as mes_ano,
+                SUM(CASE WHEN tipo = 'Receita' THEN valor ELSE 0 END) as receitas,
+                SUM(CASE WHEN tipo = 'Despesa' THEN valor ELSE 0 END) as despesas
+            FROM lancamento
+            WHERE id_usuario = ? AND pago = 1
+            GROUP BY strftime('%Y-%m', data)
+            ORDER BY mes_ano DESC
+            LIMIT ?
+        """
+        rows = db.fetch_all(query, (current_user.id_usuario, limite_meses))
+        
+        # Inverter para ficar cronológico
+        resultado_cronologico = [dict(r) for r in rows][::-1]
+        return resultado_cronologico
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro no analytic de saldo: {str(e)}")
+
 
 
 @router.get("/{id_lancamento}", response_model=LancamentoResponse, summary="Obter lançamento")

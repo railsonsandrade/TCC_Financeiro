@@ -1,308 +1,393 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { contasAPI, lancamentosAPI, metasAPI, Conta, Meta } from '@/lib/api'
-import { formatCurrency } from '@/lib/utils'
-import { Wallet, TrendingUp, TrendingDown, Target, ArrowUpRight, ArrowDownRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
+import {
+  Plus, LayoutDashboard, Save, X, Pencil, RotateCcw,
+  ChevronLeft, ChevronRight, CheckCircle, Loader2
+} from 'lucide-react'
 import { format, startOfMonth, endOfMonth, addMonths } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
+import {
+  contasAPI, lancamentosAPI, metasAPI, dashboardAPI,
+  Conta, Meta, GastosPorCategoria, EvolucaoSaldo, DashboardWidget,
+} from '@/lib/api'
+import { formatCurrency } from '@/lib/utils'
+import {
+  WidgetDef, WidgetConfig, DEFAULT_WIDGETS, getPeriodoDates,
+} from '@/lib/dashboardHelpers'
+
+import DashboardGrid from '@/components/dashboard/DashboardGrid'
+import ModalCriarWidget from '@/components/dashboard/ModalCriarWidget'
+
+// ─── nanoid polyfill (não depende do módulo externo se não instalado) ─────────
+function uid() {
+  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36)
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function apiWidgetsToWidgetDefs(apiWidgets: DashboardWidget[]): WidgetDef[] {
+  return apiWidgets.map(w => ({
+    id_widget: w.id_widget,
+    tipo: w.tipo,
+    titulo: w.configuracao?.titulo || labelForTipo(w.tipo),
+    x: w.x, y: w.y, w: w.w, h: w.h,
+    configuracao: w.configuracao,
+  }))
+}
+
+function labelForTipo(tipo: string): string {
+  const map: Record<string, string> = {
+    card_kpi: 'KPIs Financeiros',
+    area_evolucao: 'Evolução de Saldo',
+    pie_categoria: 'Categorias (Pizza)',
+    bar_categoria: 'Top Categorias',
+    metas: 'Metas em Andamento',
+    contas: 'Minhas Contas',
+    custom: 'Widget Personalizado',
+  }
+  return map[tipo] || tipo
+}
+
+function widgetDefsToApiWidgets(defs: WidgetDef[]): DashboardWidget[] {
+  return defs.map(w => ({
+    id_widget: w.id_widget,
+    tipo: w.tipo,
+    x: w.x, y: w.y, w: w.w, h: w.h,
+    configuracao: w.configuracao ? { ...w.configuracao, titulo: w.titulo } : { titulo: w.titulo },
+  }))
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
 export default function DashboardPage() {
+  // ── Data states ──
   const [contas, setContas] = useState<Conta[]>([])
   const [metas, setMetas] = useState<Meta[]>([])
-  const [totais, setTotais] = useState({ total_receitas: '0', total_despesas: '0', saldo: '0' })
+  const [gastos, setGastos] = useState<GastosPorCategoria[]>([])
+  const [evolucao, setEvolucao] = useState<EvolucaoSaldo[]>([])
+  const [totais, setTotais] = useState({ receitas: 0, despesas: 0, saldo: 0 })
+  const [filtroTipo, setFiltroTipo] = useState<'mes' | 'periodo'>('periodo')
+  const [periodoDate, setPeriodoDate] = useState(new Date())
+  const [dataInicio, setDataInicio] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'))
+  const [dataFim, setDataFim] = useState(format(endOfMonth(new Date()), 'yyyy-MM-dd'))
+
   const [loading, setLoading] = useState(true)
-  const [periodo, setPeriodo] = useState<Date>(new Date())
+
+  // ── Layout states ──
+  const [widgets, setWidgets] = useState<WidgetDef[]>([])
+  const [editMode, setEditMode] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [layoutChanged, setLayoutChanged] = useState(false)
+
+  // ── Modal states ──
+  const [showModal, setShowModal] = useState(false)
+  const [editingWidget, setEditingWidget] = useState<WidgetDef | null>(null)
+
+  // ── Load data ────────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    loadLayout()
+  }, [])
 
   useEffect(() => {
     loadData()
-  }, [periodo])
+  }, [periodoDate, dataInicio, dataFim, filtroTipo])
+
+  const loadLayout = async () => {
+    try {
+      const resp = await dashboardAPI.obterLayout()
+      if (resp.data && resp.data.length > 0) {
+        setWidgets(apiWidgetsToWidgetDefs(resp.data))
+      } else {
+        setWidgets(DEFAULT_WIDGETS)
+      }
+    } catch {
+      setWidgets(DEFAULT_WIDGETS)
+    }
+  }
 
   const loadData = async () => {
     try {
       setLoading(true)
+      const inicio = filtroTipo === 'mes' ? format(startOfMonth(periodoDate), 'yyyy-MM-dd') : dataInicio
+      const fim = filtroTipo === 'mes' ? format(endOfMonth(periodoDate), 'yyyy-MM-dd') : dataFim
+      const mesAno = format(periodoDate, 'yyyy-MM') // Analytics fixos ainda usam mes_ano
 
-      // Carregar contas com saldo
-      const contasResponse = await contasAPI.listarComSaldo()
-      setContas(contasResponse.data)
+      const [contasRes, metasRes, gastosRes, evolucaoRes, lancsRes] = await Promise.allSettled([
+        contasAPI.listarComSaldo(),
+        metasAPI.listar('Em Andamento'),
+        lancamentosAPI.obterGastosPorCategoria(mesAno),
+        lancamentosAPI.obterEvolucaoSaldo(6),
+        lancamentosAPI.listarComDetalhes({ data_inicio: inicio, data_fim: fim }),
+      ])
 
-      // Carregar metas ativas
-      const metasResponse = await metasAPI.listar('Em Andamento')
-      console.log('Metas Response:', metasResponse.data)
-      setMetas(metasResponse.data)
+      if (contasRes.status === 'fulfilled') setContas(contasRes.value.data)
+      if (metasRes.status === 'fulfilled') setMetas(metasRes.value.data)
+      if (gastosRes.status === 'fulfilled') setGastos(gastosRes.value.data)
+      if (evolucaoRes.status === 'fulfilled') setEvolucao(evolucaoRes.value.data)
 
-      // Carregar totais do mês atual usando a listagem de lançamentos
-      // (calcula a partir dos lançamentos exibidos, garantindo consistência)
-      const hoje = periodo
-      const inicio = format(startOfMonth(hoje), 'yyyy-MM-dd')
-      const fim = format(endOfMonth(hoje), 'yyyy-MM-dd')
-
-      console.log('Buscando lançamentos do período para cálculo de totais:', { inicio, fim })
-      const lancsResponse = await lancamentosAPI.listar({ data_inicio: inicio, data_fim: fim })
-      const lancs = lancsResponse.data || []
-
-      // Se não houver lançamentos retornados, tentamos buscar lançamentos recentes sem filtro
-      let fallbackTotais: any | null = null
-      if (lancs.length === 0) {
-        try {
-          // Primeiro, tentar obter totais agregados do backend
-          const resp = await lancamentosAPI.obterTotais(inicio, fim)
-          fallbackTotais = resp.data
-          console.log('Fallback totais obtidos do endpoint /lancamentos/totais:', fallbackTotais)
-        } catch (e) {
-          console.warn('Fallback /lancamentos/totais falhou:', e)
-        }
-
-        // Se ainda não tivermos lançamentos, buscar lançamentos recentes sem filtro de data
-        try {
-          const recentResp = await lancamentosAPI.listar()
-          if (recentResp.data && recentResp.data.length > 0) {
-            console.log('Usando lançamentos recentes como fallback para totais:', recentResp.data.length)
-            // sobrescrever lancs para prosseguir com cálculo baseado em dados reais
-            // @ts-ignore
-            lancs.push(...recentResp.data)
-          }
-        } catch (e) {
-          console.warn('Busca de lançamentos recentes falhou:', e)
-        }
+      if (lancsRes.status === 'fulfilled') {
+        const lancs = lancsRes.value.data || []
+        const pagos = lancs.filter((l: any) => l.pago)
+        const rec = pagos.filter((l: any) => l.tipo === 'Receita').reduce((a: number, l: any) => a + parseFloat(l.valor || '0'), 0)
+        const desp = pagos.filter((l: any) => l.tipo === 'Despesa').reduce((a: number, l: any) => a + parseFloat(l.valor || '0'), 0)
+        setTotais({ receitas: rec, despesas: desp, saldo: rec - desp })
       }
-
-
-      // Somar receitas e despesas diretamente a partir dos lançamentos
-      // Por padrão consideramos apenas lançamentos marcados como pagos (`pago: true`) —
-      // altere `incluirNaoPagos` para `true` se quiser incluir todos os lançamentos.
-      const incluirNaoPagos = false
-
-      const filtrados = lancs.filter((l: any) => (incluirNaoPagos ? true : !!l.pago))
-
-      const totalReceitas = filtrados
-        .filter((l: any) => l.tipo === 'Receita')
-        .reduce((acc: number, l: any) => acc + parseFloat(l.valor || '0'), 0)
-
-      const totalDespesas = filtrados
-        .filter((l: any) => l.tipo === 'Despesa')
-        .reduce((acc: number, l: any) => acc + parseFloat(l.valor || '0'), 0)
-
-      let total_receitas = totalReceitas
-      let total_despesas = totalDespesas
-
-      // Se não houve lançamentos mas o backend retornou totais, usamos eles
-      if (lancs.length === 0 && fallbackTotais) {
-        total_receitas = parseFloat(fallbackTotais.total_receitas || '0')
-        total_despesas = parseFloat(fallbackTotais.total_despesas || '0')
-      }
-
-      const saldoCalculado = total_receitas - total_despesas
-
-      console.log('Totais (final):', { total_receitas, total_despesas, saldoCalculado })
-
-      setTotais({
-        total_receitas: total_receitas.toFixed(2),
-        total_despesas: total_despesas.toFixed(2),
-        saldo: saldoCalculado.toFixed(2)
-      })
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error)
+    } catch (e) {
+      console.error('Erro ao carregar dados do dashboard:', e)
     } finally {
       setLoading(false)
     }
   }
 
-  const saldoTotal = contas.reduce((acc, conta) => {
-    return acc + parseFloat(conta.saldo_atual || conta.saldo_inicial)
-  }, 0)
+  // ── Layout handlers ───────────────────────────────────────────────────────────
 
-  const prevMonth = () => setPeriodo((p) => addMonths(p, -1))
-  const nextMonth = () => setPeriodo((p) => addMonths(p, 1))
+  const handleLayoutChange = useCallback((newLayout: any[]) => {
+    setWidgets(prev => prev.map(w => {
+      const item = newLayout.find((l: any) => l.i === w.id_widget)
+      if (!item) return w
+      return { ...w, x: item.x, y: item.y, w: item.w, h: item.h }
+    }))
+    setLayoutChanged(true)
+  }, [])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
-      </div>
-    )
+  const handleSaveLayout = async () => {
+    try {
+      setSaving(true)
+      await dashboardAPI.salvarLayout({ widgets: widgetDefsToApiWidgets(widgets) })
+      setSaved(true)
+      setLayoutChanged(false)
+      setTimeout(() => setSaved(false), 3000)
+    } catch (e) {
+      console.error('Erro ao salvar layout:', e)
+    } finally {
+      setSaving(false)
+    }
   }
 
+  const handleResetLayout = () => {
+    setWidgets(DEFAULT_WIDGETS)
+    setLayoutChanged(true)
+  }
+
+  // ── Widget CRUD ───────────────────────────────────────────────────────────────
+
+  const handleDeleteWidget = (id: string) => {
+    setWidgets(prev => prev.filter(w => w.id_widget !== id))
+    setLayoutChanged(true)
+  }
+
+  const handleEditWidget = (widget: WidgetDef) => {
+    if (widget.tipo !== 'custom') return // só custom é editável via modal
+    setEditingWidget(widget)
+    setShowModal(true)
+  }
+
+  const handleSaveWidget = (config: WidgetConfig) => {
+    if (editingWidget) {
+      setWidgets(prev => prev.map(w =>
+        w.id_widget === editingWidget.id_widget
+          ? { ...w, titulo: config.titulo, configuracao: config }
+          : w
+      ))
+    } else {
+      const newWidget: WidgetDef = {
+        id_widget: `custom-${uid()}`,
+        tipo: 'custom',
+        titulo: config.titulo,
+        x: 0,
+        y: 999, // Safely append at the bottom without breaking backend ints
+        w: 6,
+        h: 5,
+        configuracao: config,
+      }
+      setWidgets(prev => [...prev, newWidget])
+    }
+    setLayoutChanged(true)
+    setShowModal(false)
+    setEditingWidget(null)
+  }
+
+  // ── Computed ───────────────────────────────────────────────────────────────
+
+  const saldoTotal = contas.reduce((acc, c) => acc + parseFloat(String(c.saldo_atual ?? c.saldo_inicial ?? 0)), 0)
+  const prevMonth = () => setPeriodoDate(p => addMonths(p, -1))
+  const nextMonth = () => setPeriodoDate(p => addMonths(p, 1))
+
+  // ── Props for widgets ──
+  const globalFilter = {
+    tipo: filtroTipo,
+    mes: periodoDate,
+    data_inicio: filtroTipo === 'mes' ? format(startOfMonth(periodoDate), 'yyyy-MM-dd') : dataInicio,
+    data_fim: filtroTipo === 'mes' ? format(endOfMonth(periodoDate), 'yyyy-MM-dd') : dataFim
+  }
+
+  // ─── Render ───────────────────────────────────────────────────────────────────
+
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in pb-20">
+      {/* ── Header ── */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-50">Dashboard</h1>
-          <p className="text-gray-400 mt-2 text-base md:text-lg">Visão geral das suas finanças</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-50 flex items-center gap-3">
+            <LayoutDashboard className="w-8 h-8 text-yellow-400" />
+            Dashboard
+          </h1>
+          <p className="text-gray-400 mt-1 text-sm">Visão geral e personalizável das suas finanças</p>
         </div>
-        <div className="text-left md:text-right">
-          <p className="text-sm text-gray-500 mb-1">Período</p>
-          <div className="flex items-center space-x-3">
-            <button onClick={prevMonth} className="p-1.5 bg-[#1a202c] text-gray-400 rounded-lg border border-[#222834] hover:bg-[#222834] hover:text-white transition-colors">
-              <ChevronLeft className="w-5 h-5" />
+
+        {/* Period selector */}
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-1 bg-[#12161f] border border-[#222834] rounded-lg p-1">
+            <button 
+              onClick={() => setFiltroTipo('mes')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filtroTipo === 'mes' ? 'bg-[#2a3140] text-blue-400' : 'text-gray-400 hover:text-gray-200'}`}
+            >Mensal</button>
+            <button 
+              onClick={() => setFiltroTipo('periodo')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filtroTipo === 'periodo' ? 'bg-[#2a3140] text-blue-400' : 'text-gray-400 hover:text-gray-200'}`}
+            >Período</button>
+          </div>
+
+          {filtroTipo === 'mes' ? (
+            <div className="flex items-center gap-2 bg-[#12161f] border border-[#222834] rounded-xl px-3 py-2">
+              <button onClick={prevMonth} className="p-1 text-gray-400 hover:text-white transition-colors">
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-sm font-semibold text-gray-100 min-w-[120px] text-center capitalize">
+                {format(periodoDate, 'MMMM yyyy', { locale: ptBR })}
+              </span>
+              <button onClick={nextMonth} className="p-1 text-gray-400 hover:text-white transition-colors">
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 bg-[#12161f] border border-[#222834] rounded-xl px-3 py-1.5">
+              <input 
+                type="date" 
+                value={dataInicio} 
+                onChange={e => setDataInicio(e.target.value)}
+                className="bg-transparent text-sm text-gray-200 outline-none w-auto"
+              />
+              <span className="text-gray-500 text-sm">até</span>
+              <input 
+                type="date" 
+                value={dataFim} 
+                onChange={e => setDataFim(e.target.value)}
+                className="bg-transparent text-sm text-gray-200 outline-none w-auto"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Toolbar ── */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {/* Botão Editar / Concluir */}
+          <button
+            onClick={() => {
+              if (editMode && layoutChanged) handleSaveLayout()
+              setEditMode(v => !v)
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${
+              editMode
+                ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400 hover:bg-yellow-500/30'
+                : 'bg-[#12161f] border-[#222834] text-gray-300 hover:border-gray-500 hover:text-white'
+            }`}
+          >
+            {editMode ? <><X className="w-4 h-4" /> Concluir Edição</> : <><Pencil className="w-4 h-4" /> Editar Layout</>}
+          </button>
+
+          {/* Adicionar Widget */}
+          <button
+            onClick={() => { setEditingWidget(null); setShowModal(true) }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white border border-blue-600 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Adicionar Widget
+          </button>
+
+          {/* Reset */}
+          {editMode && (
+            <button
+              onClick={handleResetLayout}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-400 hover:text-orange-400 border border-[#222834] hover:border-orange-500/50 bg-[#12161f] transition-colors"
+              title="Resetar para layout padrão"
+            >
+              <RotateCcw className="w-4 h-4" />
             </button>
-            <p className="text-lg font-semibold text-gray-100 min-w-[140px] text-center capitalize">
-              {format(periodo, 'MMMM yyyy', { locale: ptBR })}
-            </p>
-            <button onClick={nextMonth} className="p-1.5 bg-[#1a202c] text-gray-400 rounded-lg border border-[#222834] hover:bg-[#222834] hover:text-white transition-colors">
-              <ChevronRight className="w-5 h-5" />
+          )}
+        </div>
+
+        {/* Save status */}
+        <div className="flex items-center gap-2">
+          {saved && (
+            <span className="flex items-center gap-1.5 text-xs text-emerald-400 animate-fade-in">
+              <CheckCircle className="w-4 h-4" /> Layout salvo!
+            </span>
+          )}
+          {layoutChanged && !saved && (
+            <button
+              onClick={handleSaveLayout}
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors disabled:opacity-60"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? 'Salvando...' : 'Salvar Layout'}
             </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Edit mode banner ── */}
+      {editMode && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-sm text-yellow-300 animate-fade-in">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Modo edição ativo — arraste os widgets para reposicioná-los e redimensione pelas bordas. Clique em <strong className="text-yellow-400">Concluir Edição</strong> para salvar automaticamente.
+        </div>
+      )}
+
+      {/* ── Loading ── */}
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4" />
+            <p className="text-gray-500 text-sm">Carregando dados...</p>
           </div>
         </div>
-      </div>
+      ) : (
+        <DashboardGrid
+          widgets={widgets}
+          editMode={editMode}
+          onLayoutChange={handleLayoutChange}
+          onEditWidget={handleEditWidget}
+          onDeleteWidget={handleDeleteWidget}
+          contas={contas}
+          metas={metas}
+          gastosPorCategoria={gastos}
+          evolucaoSaldo={evolucao}
+          saldoTotal={saldoTotal}
+          totalReceitas={totais.receitas}
+          totalDespesas={totais.despesas}
+          saldoMes={totais.saldo}
+          globalFilter={globalFilter}
+        />
+      )}
 
-      {/* Cards de Resumo - Design Moderno Escuro */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Saldo Total */}
-        <Card className="bg-[#12161f] border-[#222834] shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-l-[#3b82f6]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[#222834]">
-            <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Saldo Total</CardTitle>
-            <div className="p-2 bg-[#3b82f6]/10 rounded-lg border border-[#3b82f6]/20">
-              <Wallet className="w-5 h-5 text-[#3b82f6]" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="text-3xl font-bold text-gray-50">{formatCurrency(saldoTotal)}</div>
-            <p className="text-xs text-[#3b82f6] mt-2 font-medium">{contas.length} contas ativas</p>
-          </CardContent>
-        </Card>
-
-        {/* Receitas do Mês */}
-        <Card className="bg-[#12161f] border-[#222834] shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-l-[#10b981]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[#222834]">
-            <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Receitas</CardTitle>
-            <div className="p-2 bg-[#10b981]/10 rounded-lg border border-[#10b981]/20">
-              <TrendingUp className="w-5 h-5 text-[#10b981]" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="text-3xl font-bold text-gray-50">
-              {formatCurrency(parseFloat(totais.total_receitas))}
-            </div>
-            <div className="flex items-center text-xs text-[#10b981] mt-2 font-medium">
-              <ArrowUpRight className="w-4 h-4 mr-1" />
-              Entradas do período
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Despesas do Mês */}
-        <Card className="bg-[#12161f] border-[#222834] shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-l-[#ef4444]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[#222834]">
-            <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Despesas</CardTitle>
-            <div className="p-2 bg-[#ef4444]/10 rounded-lg border border-[#ef4444]/20">
-              <TrendingDown className="w-5 h-5 text-[#ef4444]" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="text-3xl font-bold text-gray-50">
-              {formatCurrency(parseFloat(totais.total_despesas))}
-            </div>
-            <div className="flex items-center text-xs text-[#ef4444] mt-2 font-medium">
-              <ArrowDownRight className="w-4 h-4 mr-1" />
-              Saídas do período
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Saldo do Mês */}
-        <Card className={`bg-[#12161f] border-[#222834] shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 ${parseFloat(totais.saldo) >= 0 ? 'border-l-[#eab308]' : 'border-l-[#f97316]'}`}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[#222834]">
-            <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Saldo Mês</CardTitle>
-            <div className={`p-2 rounded-lg border ${parseFloat(totais.saldo) >= 0 ? 'bg-[#eab308]/10 border-[#eab308]/20' : 'bg-[#f97316]/10 border-[#f97316]/20'}`}>
-              <Target className={`w-5 h-5 ${parseFloat(totais.saldo) >= 0 ? 'text-[#eab308]' : 'text-[#f97316]'}`} />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="text-3xl font-bold text-gray-50">
-              {formatCurrency(parseFloat(totais.saldo))}
-            </div>
-            <p className={`text-xs mt-2 font-medium ${parseFloat(totais.saldo) >= 0 ? 'text-[#eab308]' : 'text-[#f97316]'}`}>
-              Receitas - Despesas
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Contas e Metas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Contas */}
-        <Card className="bg-[#12161f] border-[#222834] shadow-lg border-t-2 border-t-[#3b82f6]">
-          <CardHeader className="border-b border-[#222834] bg-[#151a22]">
-            <CardTitle className="text-lg font-bold text-gray-100 flex items-center">
-              <Wallet className="w-5 h-5 mr-3 text-[#3b82f6]" />
-              Minhas Contas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            {contas.length === 0 ? (
-              <div className="text-center py-8">
-                <Wallet className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                <p className="text-gray-500">Nenhuma conta cadastrada</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {contas.slice(0, 5).map((conta) => (
-                  <div key={conta.id_conta} className="flex items-center justify-between p-4 bg-[#1a202c] rounded-xl border border-[#2a3140] hover:border-[#3e485e] transition-colors">
-                    <div className="flex items-center space-x-4">
-                      <div
-                        className="w-3 h-10 rounded-full shadow-sm"
-                        style={{ backgroundColor: conta.cor || '#3b82f6' }}
-                      />
-                      <div>
-                        <p className="font-semibold text-gray-200">{conta.nome}</p>
-                        <p className="text-xs text-gray-400 font-medium mt-0.5">{conta.tipo}</p>
-                      </div>
-                    </div>
-                    <p className="font-bold text-lg text-gray-100">
-                      {formatCurrency(parseFloat(conta.saldo_atual || conta.saldo_inicial))}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Metas */}
-        <Card className="bg-[#12161f] border-[#222834] shadow-lg border-t-2 border-t-[#eab308]">
-          <CardHeader className="border-b border-[#222834] bg-[#151a22]">
-            <CardTitle className="text-lg font-bold text-gray-100 flex items-center">
-              <Target className="w-5 h-5 mr-3 text-[#eab308]" />
-              Metas em Andamento
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            {metas.length === 0 ? (
-              <div className="text-center py-8">
-                <Target className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                <p className="text-gray-500">Nenhuma meta em andamento</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {metas.slice(0, 5).map((meta) => (
-                  <div key={meta.id_meta} className="space-y-3 p-4 bg-[#1a202c] rounded-xl border border-[#2a3140] hover:border-[#3e485e] transition-colors">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold text-gray-200">{meta.nome}</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          <span className="text-gray-300">{formatCurrency(parseFloat(meta.valor_atual || '0'))}</span> de {formatCurrency(parseFloat(meta.valor_alvo))}
-                        </p>
-                      </div>
-                      <span className="text-xs font-bold text-[#eab308] bg-[#eab308]/10 border border-[#eab308]/20 px-2 py-1 rounded-md">
-                        {meta.percentual_atingido?.toFixed(0) || 0}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-[#12161f] rounded-full h-2 overflow-hidden border border-[#222834]">
-                      <div
-                        className="bg-gradient-to-r from-yellow-600 to-yellow-400 h-2 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(234,179,8,0.4)]"
-                        style={{ width: `${Math.min(meta.percentual_atingido || 0, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* ── Modal Criar / Editar Widget ── */}
+      {showModal && (
+        <ModalCriarWidget
+          onClose={() => { setShowModal(false); setEditingWidget(null) }}
+          onSave={handleSaveWidget}
+          initialConfig={editingWidget?.configuracao as Partial<WidgetConfig>}
+        />
+      )}
     </div>
   )
 }
-

@@ -224,6 +224,27 @@ WHERE l.pago = 1
 GROUP BY l.id_usuario, c.id_categoria, c.nome, c.tipo, c.grupo_50_30_20, strftime('%Y-%m', l.data);
 
 -- =============================================
+-- TABELA: DASHBOARD_WIDGET
+-- =============================================
+DROP TABLE IF EXISTS dashboard_widget;
+
+CREATE TABLE dashboard_widget (
+    id_widget VARCHAR(100) PRIMARY KEY,
+    id_usuario INTEGER NOT NULL,
+    tipo VARCHAR(50) NOT NULL,
+    x INTEGER NOT NULL,
+    y INTEGER NOT NULL,
+    w INTEGER NOT NULL,
+    h INTEGER NOT NULL,
+    configuracao JSON,
+    data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_dashboard_widget_usuario ON dashboard_widget(id_usuario);
+
+-- =============================================
 -- FIM DO SCHEMA
 -- =============================================
 
