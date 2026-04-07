@@ -1,25 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --primary: #1e40af;
-  --primary-foreground: #ffffff;
-  --secondary: #10b981;
-  --secondary-foreground: #ffffff;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  /* Dark Constellation Palette */
+  --background: #0a0f16;
+  --foreground: #f8fafc;
+  --card: #12161f;
+  --card-foreground: #f8fafc;
+  --primary: #eab308; /* Yellow 500 */
+  --primary-foreground: #000000;
+  --secondary: #1a202c;
+  --secondary-foreground: #f8fafc;
+  --muted: #151a22;
+  --muted-foreground: #9ca3af;
   --accent: #f59e0b;
-  --accent-foreground: #ffffff;
+  --accent-foreground: #000000;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #ffffff;
-  --ring: #1e40af;
+  --border: #222834;
+  --input: #1a202c;
+  --ring: #eab308;
 
-  /* Cores adicionais para finanças */
+  /* Cores adicionais para finanças (versões escuras) */
   --success: #10b981;
   --warning: #f59e0b;
   --info: #3b82f6;
@@ -65,12 +66,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
+  background: var(--border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: var(--muted-foreground);
 }
 
 /* Animações */
@@ -119,9 +120,9 @@ body {
   animation: slide-up 0.6s ease-out;
 }
 
-/* Utilitários */
+/* Utilitários - Dark Mode */
 .gradient-primary {
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #eab308 0%, #f59e0b 100%);
 }
 
 .gradient-success {
@@ -133,8 +134,8 @@ body {
 }
 
 .glass-effect {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  background: rgba(18, 22, 31, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }

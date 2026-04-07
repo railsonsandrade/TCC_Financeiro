@@ -19,10 +19,10 @@ import {
 } from 'lucide-react'
 
 const QUICK_PROMPTS = [
-  { icon: BarChart3, label: 'Em que gastei mais este mês?', color: 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100' },
-  { icon: Target, label: 'Como atingir minhas metas mais rápido?', color: 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100' },
-  { icon: PiggyBank, label: 'Crie um plano de economia para mim', color: 'text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100' },
-  { icon: Lightbulb, label: 'Dicas para reduzir gastos fixos', color: 'text-violet-600 bg-violet-50 border-violet-200 hover:bg-violet-100' },
+  { icon: BarChart3, label: 'Em que gastei mais este mês?', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20' },
+  { icon: Target, label: 'Como atingir minhas metas mais rápido?', color: 'text-[#10b981] bg-[#10b981]/10 border-[#10b981]/20 hover:bg-[#10b981]/20' },
+  { icon: PiggyBank, label: 'Crie um plano de economia para mim', color: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20 hover:bg-yellow-500/20' },
+  { icon: Lightbulb, label: 'Dicas para reduzir gastos fixos', color: 'text-violet-500 bg-violet-500/10 border-violet-500/20 hover:bg-violet-500/20' },
 ]
 
 export default function CopilotPage() {
@@ -80,34 +80,34 @@ export default function CopilotPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl shadow-lg">
+          <h1 className="text-3xl font-bold text-gray-50 flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-violet-600 to-purple-800 rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.3)] border border-violet-500/30">
               <Bot className="w-6 h-6 text-white" />
             </div>
             Copilot IA
           </h1>
-          <p className="text-gray-500 mt-1">Seu assistente financeiro inteligente</p>
+          <p className="text-gray-400 mt-1">Seu assistente financeiro inteligente</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-violet-50 rounded-lg border border-violet-200">
-          <Sparkles className="w-4 h-4 text-violet-500" />
-          <span className="text-sm font-medium text-violet-700">Powered by Gemini</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-violet-500/10 rounded-lg border border-violet-500/20">
+          <Sparkles className="w-4 h-4 text-violet-400" />
+          <span className="text-sm font-medium text-violet-300">Powered by Gemini</span>
         </div>
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+      <div className="flex-1 bg-[#12161f] rounded-2xl border border-[#222834] shadow-lg overflow-hidden flex flex-col">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
               <div className="space-y-3">
-                <div className="mx-auto w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
-                  <MessageCircle className="w-10 h-10 text-violet-500" />
+                <div className="mx-auto w-20 h-20 rounded-3xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.15)]">
+                  <MessageCircle className="w-10 h-10 text-violet-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Como posso ajudar?</h3>
-                <p className="text-gray-500 max-w-md">
+                <h3 className="text-xl font-semibold text-gray-200">Como posso ajudar?</h3>
+                <p className="text-gray-400 max-w-md">
                   Pergunte sobre seus gastos, peça dicas de economia, ou solicite um plano financeiro personalizado.
                 </p>
               </div>
@@ -136,22 +136,22 @@ export default function CopilotPage() {
                 className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0 mt-1">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-800 border border-violet-500/30 flex items-center justify-center shrink-0 mt-1 shadow-md">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
                 )}
                 <div
-                  className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                  className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
                     message.role === 'user'
-                      ? 'bg-sky-600 text-white rounded-tr-sm'
-                      : 'bg-gray-50 text-gray-800 border border-gray-100 rounded-tl-sm'
+                      ? 'bg-yellow-500 text-black font-medium rounded-tr-sm'
+                      : 'bg-[#1a202c] text-gray-200 border border-[#2a3140] rounded-tl-sm'
                   }`}
                 >
                   <div className="whitespace-pre-wrap">{message.content}</div>
                 </div>
                 {message.role === 'user' && (
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shrink-0 mt-1">
-                    <User className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-lg bg-yellow-500 flex items-center justify-center shrink-0 mt-1 shadow-md">
+                    <User className="w-4 h-4 text-black" />
                   </div>
                 )}
               </div>
@@ -159,12 +159,12 @@ export default function CopilotPage() {
           )}
 
           {loading && (
-            <div className="flex gap-3 justify-start">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0">
+            <div className="flex gap-3 justify-start animate-pulse">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-800 border border-violet-500/30 flex items-center justify-center shrink-0 shadow-md">
                 <Bot className="w-4 h-4 text-white" />
               </div>
-              <div className="bg-gray-50 border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-3">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="bg-[#1a202c] border border-[#2a3140] rounded-2xl rounded-tl-sm px-4 py-3">
+                <div className="flex items-center gap-2 text-sm text-violet-400">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Pensando...
                 </div>
@@ -176,7 +176,7 @@ export default function CopilotPage() {
         </div>
 
         {/* Input */}
-        <div className="border-t border-gray-100 p-4 bg-gray-50/50">
+        <div className="border-t border-[#222834] p-4 bg-[#151a22]">
           <form onSubmit={handleSubmit} className="flex gap-3">
             <input
               ref={inputRef}
@@ -184,15 +184,15 @@ export default function CopilotPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Pergunte sobre suas finanças..."
-              className="flex-1 h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 transition-all"
+              className="flex-1 h-12 px-4 rounded-xl border border-[#2a3140] bg-[#1a202c] text-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all placeholder:text-gray-500"
               disabled={loading}
             />
             <Button
               type="submit"
               disabled={!input.trim() || loading}
-              className="h-11 px-5 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 rounded-xl"
+              className="h-12 px-6 bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-500 hover:to-purple-600 border border-violet-500/50 rounded-xl text-white shadow-[0_0_15px_rgba(139,92,246,0.3)] disabled:opacity-50 disabled:shadow-none"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             </Button>
           </form>
         </div>

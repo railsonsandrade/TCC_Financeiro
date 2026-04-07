@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Navbar from '@/components/Navbar'
+import ConstellationBackground from '@/components/ConstellationBackground'
 
 export default function DashboardLayout({
   children,
@@ -21,8 +22,8 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-[#0a0f16] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
       </div>
     )
   }
@@ -32,11 +33,14 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
-      </main>
+    <div className="min-h-screen bg-[#0a0f16] relative text-gray-100">
+      <ConstellationBackground />
+      <div className="relative z-10 w-full h-full min-h-screen flex flex-col">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }
