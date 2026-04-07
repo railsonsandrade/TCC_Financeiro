@@ -36,7 +36,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#0a0f16] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen relative overflow-hidden bg-transparent flex flex-col items-center justify-center p-4">
       {/* Toast */}
       {toast && (
         <Toast

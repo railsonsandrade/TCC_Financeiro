@@ -59,12 +59,12 @@ export default function CopilotPage() {
       }
       setMessages([...updatedMessages, assistantMessage])
     } catch (err: any) {
-      const errMsg = err.response?.data?.detail || 'Erro ao conectar com o Copilot. Verifique se a API de IA está configurada.'
+      const errMsg = err.response?.data?.detail || 'Erro ao conectar com a PatarIA. Verifique se a API de IA está configurada.'
       setError(errMsg)
       // Add error as assistant message
       setMessages([...updatedMessages, {
         role: 'assistant',
-        content: `⚠️ ${errMsg}\n\nPara configurar o Copilot, adicione sua chave da API do Google Gemini no arquivo \`.env\` do backend:\n\`GEMINI_API_KEY=sua_chave_aqui\``,
+        content: `⚠️ ${errMsg}\n\nPara configurar a PatarIA, adicione sua chave da API do Google Gemini no arquivo \`.env\` do backend:\n\`GEMINI_API_KEY=sua_chave_aqui\``,
       }])
     } finally {
       setLoading(false)
@@ -86,9 +86,9 @@ export default function CopilotPage() {
             <div className="p-2 bg-gradient-to-br from-violet-600 to-purple-800 rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.3)] border border-violet-500/30">
               <Bot className="w-6 h-6 text-white" />
             </div>
-            Copilot IA
+            PatarIA
           </h1>
-          <p className="text-gray-400 mt-1">Seu assistente financeiro inteligente</p>
+          <p className="text-gray-400 mt-1">Sua assistente financeira inteligente</p>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 bg-violet-500/10 rounded-lg border border-violet-500/20">
           <Sparkles className="w-4 h-4 text-violet-400" />

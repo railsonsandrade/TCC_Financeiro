@@ -26,7 +26,7 @@ const navItems = [
   { href: '/dashboard/lancamentos', label: 'Lançamentos', icon: ArrowLeftRight },
   { href: '/dashboard/metas', label: 'Metas', icon: Target },
   { href: '/dashboard/importar', label: 'Importar', icon: Upload },
-  { href: '/dashboard/copilot', label: 'Copilot IA', icon: Bot },
+  { href: '/dashboard/copilot', label: 'PatarIA', icon: Bot },
 ]
 
 export default function Navbar() {
@@ -40,18 +40,13 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             {/* Unified Logo */}
-            <Link href="/dashboard" className="flex items-center space-x-3 group">
-              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-[#1a202c] to-[#0a0f16] flex items-center justify-center border border-[#2a3140] shadow-[0_0_15px_rgba(234,179,8,0.2)] group-hover:shadow-[0_0_20px_rgba(234,179,8,0.4)] group-hover:scale-105 transition-all duration-300">
-                <div className="absolute inset-0 bg-yellow-500/10 rounded-xl rounded-tr-sm group-hover:bg-yellow-500/20 transition-colors pointer-events-none" />
-                <Target className="w-5 h-5 text-yellow-500 group-hover:animate-pulse" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-bold bg-gradient-to-r from-gray-50 to-gray-300 bg-clip-text text-transparent leading-none">
-                  Constellation
-                </span>
-                <span className="text-xs font-semibold text-yellow-500 tracking-wider">
-                  FINANCE 
-                </span>
+            <Link href="/dashboard" className="flex items-center group">
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-[#2a3140] shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center justify-center bg-[#f0e6d2]">
+                <img 
+                  src="/novaLOGO.png" 
+                  alt="Logo SobControle Finanças" 
+                  className="w-full h-full object-cover scale-[1.05] transition-transform duration-300 group-hover:scale-[1.12]"
+                />
               </div>
             </Link>
 

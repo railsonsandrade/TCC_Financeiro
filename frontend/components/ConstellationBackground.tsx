@@ -65,7 +65,7 @@ export default function ConstellationBackground() {
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1
 
-        // Mouse interaction (repel slightly or link)
+        // Interação com o mouse (atração / "vai seguindo")
         const dxMouse = mouse.x - p.x
         const dyMouse = mouse.y - p.y
         const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse)
@@ -74,10 +74,15 @@ export default function ConstellationBackground() {
           // Draw line to mouse
           ctx.beginPath()
           ctx.strokeStyle = `rgba(234, 179, 8, ${1 - distMouse / mouse.radius})`
-          ctx.lineWidth = 0.5
+          ctx.lineWidth = 0.8
           ctx.moveTo(p.x, p.y)
           ctx.lineTo(mouse.x, mouse.y)
           ctx.stroke()
+
+          // Efeito de atração magnética para as partículas seguirem o mouse
+          const force = (mouse.radius - distMouse) / mouse.radius
+          p.x += (dxMouse / distMouse) * force * 1.5
+          p.y += (dyMouse / distMouse) * force * 1.5
         }
 
         // Draw particle dot
@@ -140,7 +145,7 @@ export default function ConstellationBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 w-full h-full pointer-events-none -z-10"
-      style={{ background: 'transparent' }}
+      style={{ backgroundColor: '#0a0f16' }}
     />
   )
 }

@@ -33,7 +33,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f16] relative text-gray-100">
+    <div className="min-h-screen bg-transparent relative text-gray-100">
       <ConstellationBackground />
       <div className="relative z-10 w-full h-full min-h-screen flex flex-col">
         <Navbar />
