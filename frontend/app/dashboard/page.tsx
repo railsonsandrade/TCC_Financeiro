@@ -119,57 +119,63 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
       </div>
     )
   }
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2 text-lg">Visão geral das suas finanças</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-50">Dashboard</h1>
+          <p className="text-gray-400 mt-2 text-base md:text-lg">Visão geral das suas finanças</p>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-gray-500">Período</p>
-          <div className="flex items-center justify-end space-x-3">
-            <button onClick={prevMonth} className="px-3 py-1 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
-            <p className="text-lg font-semibold text-gray-900">{format(periodo, 'MMMM yyyy', { locale: ptBR })}</p>
-            <button onClick={nextMonth} className="px-3 py-1 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"><ChevronRight className="w-4 h-4" /></button>
+        <div className="text-left md:text-right">
+          <p className="text-sm text-gray-500 mb-1">Período</p>
+          <div className="flex items-center space-x-3">
+            <button onClick={prevMonth} className="p-1.5 bg-[#1a202c] text-gray-400 rounded-lg border border-[#222834] hover:bg-[#222834] hover:text-white transition-colors">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <p className="text-lg font-semibold text-gray-100 min-w-[140px] text-center capitalize">
+              {format(periodo, 'MMMM yyyy', { locale: ptBR })}
+            </p>
+            <button onClick={nextMonth} className="p-1.5 bg-[#1a202c] text-gray-400 rounded-lg border border-[#222834] hover:bg-[#222834] hover:text-white transition-colors">
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Cards de Resumo - Design Moderno */}
+      {/* Cards de Resumo - Design Moderno Escuro */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Saldo Total */}
-        <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-l-blue-600">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-semibold text-blue-900">Saldo Total</CardTitle>
-            <div className="p-2 bg-blue-600 rounded-lg">
-              <Wallet className="w-5 h-5 text-white" />
+        <Card className="bg-[#12161f] border-[#222834] shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-l-[#3b82f6]">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[#222834]">
+            <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Saldo Total</CardTitle>
+            <div className="p-2 bg-[#3b82f6]/10 rounded-lg border border-[#3b82f6]/20">
+              <Wallet className="w-5 h-5 text-[#3b82f6]" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-900">{formatCurrency(saldoTotal)}</div>
-            <p className="text-xs text-blue-700 mt-2 font-medium">{contas.length} contas ativas</p>
+          <CardContent className="pt-4">
+            <div className="text-3xl font-bold text-gray-50">{formatCurrency(saldoTotal)}</div>
+            <p className="text-xs text-[#3b82f6] mt-2 font-medium">{contas.length} contas ativas</p>
           </CardContent>
         </Card>
 
         {/* Receitas do Mês */}
-        <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-green-600">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-semibold text-green-900">Receitas do Mês</CardTitle>
-            <div className="p-2 bg-green-600 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-white" />
+        <Card className="bg-[#12161f] border-[#222834] shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-l-[#10b981]">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[#222834]">
+            <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Receitas</CardTitle>
+            <div className="p-2 bg-[#10b981]/10 rounded-lg border border-[#10b981]/20">
+              <TrendingUp className="w-5 h-5 text-[#10b981]" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-900">
+          <CardContent className="pt-4">
+            <div className="text-3xl font-bold text-gray-50">
               {formatCurrency(parseFloat(totais.total_receitas))}
             </div>
-            <div className="flex items-center text-xs text-green-700 mt-2 font-medium">
+            <div className="flex items-center text-xs text-[#10b981] mt-2 font-medium">
               <ArrowUpRight className="w-4 h-4 mr-1" />
               Entradas do período
             </div>
@@ -177,18 +183,18 @@ export default function DashboardPage() {
         </Card>
 
         {/* Despesas do Mês */}
-        <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-l-red-600">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-semibold text-red-900">Despesas do Mês</CardTitle>
-            <div className="p-2 bg-red-600 rounded-lg">
-              <TrendingDown className="w-5 h-5 text-white" />
+        <Card className="bg-[#12161f] border-[#222834] shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-l-[#ef4444]">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[#222834]">
+            <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Despesas</CardTitle>
+            <div className="p-2 bg-[#ef4444]/10 rounded-lg border border-[#ef4444]/20">
+              <TrendingDown className="w-5 h-5 text-[#ef4444]" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-red-900">
+          <CardContent className="pt-4">
+            <div className="text-3xl font-bold text-gray-50">
               {formatCurrency(parseFloat(totais.total_despesas))}
             </div>
-            <div className="flex items-center text-xs text-red-700 mt-2 font-medium">
+            <div className="flex items-center text-xs text-[#ef4444] mt-2 font-medium">
               <ArrowDownRight className="w-4 h-4 mr-1" />
               Saídas do período
             </div>
@@ -196,18 +202,18 @@ export default function DashboardPage() {
         </Card>
 
         {/* Saldo do Mês */}
-        <Card className={`border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 ${parseFloat(totais.saldo) >= 0 ? 'bg-gradient-to-br from-emerald-50 to-emerald-100 border-l-4 border-l-emerald-600' : 'bg-gradient-to-br from-orange-50 to-orange-100 border-l-4 border-l-orange-600'}`}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className={`text-sm font-semibold ${parseFloat(totais.saldo) >= 0 ? 'text-emerald-900' : 'text-orange-900'}`}>Saldo do Mês</CardTitle>
-            <div className={`p-2 rounded-lg ${parseFloat(totais.saldo) >= 0 ? 'bg-emerald-600' : 'bg-orange-600'}`}>
-              <Target className="w-5 h-5 text-white" />
+        <Card className={`bg-[#12161f] border-[#222834] shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 ${parseFloat(totais.saldo) >= 0 ? 'border-l-[#eab308]' : 'border-l-[#f97316]'}`}>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[#222834]">
+            <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Saldo Mês</CardTitle>
+            <div className={`p-2 rounded-lg border ${parseFloat(totais.saldo) >= 0 ? 'bg-[#eab308]/10 border-[#eab308]/20' : 'bg-[#f97316]/10 border-[#f97316]/20'}`}>
+              <Target className={`w-5 h-5 ${parseFloat(totais.saldo) >= 0 ? 'text-[#eab308]' : 'text-[#f97316]'}`} />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className={`text-3xl font-bold ${parseFloat(totais.saldo) >= 0 ? 'text-emerald-900' : 'text-orange-900'}`}>
+          <CardContent className="pt-4">
+            <div className="text-3xl font-bold text-gray-50">
               {formatCurrency(parseFloat(totais.saldo))}
             </div>
-            <p className={`text-xs mt-2 font-medium ${parseFloat(totais.saldo) >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
+            <p className={`text-xs mt-2 font-medium ${parseFloat(totais.saldo) >= 0 ? 'text-[#eab308]' : 'text-[#f97316]'}`}>
               Receitas - Despesas
             </p>
           </CardContent>
@@ -217,34 +223,34 @@ export default function DashboardPage() {
       {/* Contas e Metas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Contas */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-slate-100">
-            <CardTitle className="text-xl font-bold text-gray-900 flex items-center">
-              <Wallet className="w-5 h-5 mr-2 text-blue-600" />
+        <Card className="bg-[#12161f] border-[#222834] shadow-lg border-t-2 border-t-[#3b82f6]">
+          <CardHeader className="border-b border-[#222834] bg-[#151a22]">
+            <CardTitle className="text-lg font-bold text-gray-100 flex items-center">
+              <Wallet className="w-5 h-5 mr-3 text-[#3b82f6]" />
               Minhas Contas
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             {contas.length === 0 ? (
               <div className="text-center py-8">
-                <Wallet className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <Wallet className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                 <p className="text-gray-500">Nenhuma conta cadastrada</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {contas.slice(0, 5).map((conta) => (
-                  <div key={conta.id_conta} className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-white rounded-xl border border-slate-100 hover:shadow-md transition-shadow">
+                  <div key={conta.id_conta} className="flex items-center justify-between p-4 bg-[#1a202c] rounded-xl border border-[#2a3140] hover:border-[#3e485e] transition-colors">
                     <div className="flex items-center space-x-4">
                       <div
-                        className="w-4 h-4 rounded-full shadow-sm"
-                        style={{ backgroundColor: conta.cor || '#3B82F6' }}
+                        className="w-3 h-10 rounded-full shadow-sm"
+                        style={{ backgroundColor: conta.cor || '#3b82f6' }}
                       />
                       <div>
-                        <p className="font-semibold text-gray-900">{conta.nome}</p>
-                        <p className="text-xs text-gray-500 font-medium">{conta.tipo}</p>
+                        <p className="font-semibold text-gray-200">{conta.nome}</p>
+                        <p className="text-xs text-gray-400 font-medium mt-0.5">{conta.tipo}</p>
                       </div>
                     </div>
-                    <p className="font-bold text-lg text-gray-900">
+                    <p className="font-bold text-lg text-gray-100">
                       {formatCurrency(parseFloat(conta.saldo_atual || conta.saldo_inicial))}
                     </p>
                   </div>
@@ -255,37 +261,37 @@ export default function DashboardPage() {
         </Card>
 
         {/* Metas */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-slate-100">
-            <CardTitle className="text-xl font-bold text-gray-900 flex items-center">
-              <Target className="w-5 h-5 mr-2 text-green-600" />
+        <Card className="bg-[#12161f] border-[#222834] shadow-lg border-t-2 border-t-[#eab308]">
+          <CardHeader className="border-b border-[#222834] bg-[#151a22]">
+            <CardTitle className="text-lg font-bold text-gray-100 flex items-center">
+              <Target className="w-5 h-5 mr-3 text-[#eab308]" />
               Metas em Andamento
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             {metas.length === 0 ? (
               <div className="text-center py-8">
-                <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <Target className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                 <p className="text-gray-500">Nenhuma meta em andamento</p>
               </div>
             ) : (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {metas.slice(0, 5).map((meta) => (
-                  <div key={meta.id_meta} className="space-y-3 p-4 bg-gradient-to-r from-slate-50 to-white rounded-xl border border-slate-100">
+                  <div key={meta.id_meta} className="space-y-3 p-4 bg-[#1a202c] rounded-xl border border-[#2a3140] hover:border-[#3e485e] transition-colors">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-semibold text-gray-900">{meta.nome}</p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {formatCurrency(parseFloat(meta.valor_atual || '0'))} de {formatCurrency(parseFloat(meta.valor_alvo))}
+                        <p className="font-semibold text-gray-200">{meta.nome}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          <span className="text-gray-300">{formatCurrency(parseFloat(meta.valor_atual || '0'))}</span> de {formatCurrency(parseFloat(meta.valor_alvo))}
                         </p>
                       </div>
-                      <span className="text-lg font-bold text-green-600 bg-green-50 px-3 py-1 rounded-lg">
+                      <span className="text-xs font-bold text-[#eab308] bg-[#eab308]/10 border border-[#eab308]/20 px-2 py-1 rounded-md">
                         {meta.percentual_atingido?.toFixed(0) || 0}%
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div className="w-full bg-[#12161f] rounded-full h-2 overflow-hidden border border-[#222834]">
                       <div
-                        className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 shadow-sm"
+                        className="bg-gradient-to-r from-yellow-600 to-yellow-400 h-2 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(234,179,8,0.4)]"
                         style={{ width: `${Math.min(meta.percentual_atingido || 0, 100)}%` }}
                       />
                     </div>

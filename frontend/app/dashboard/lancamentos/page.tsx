@@ -100,7 +100,7 @@ export default function LancamentosPage() {
       id_conta: lancamento.id_conta.toString(),
       id_categoria: lancamento.id_categoria.toString(),
       tipo: lancamento.tipo,
-      valor: lancamento.valor,
+      valor: String(lancamento.valor),
       data: lancamento.data,
       descricao: lancamento.descricao,
       pago: lancamento.pago
@@ -124,7 +124,7 @@ export default function LancamentosPage() {
   const categoriasFiltradas = categorias.filter(c => c.tipo === formData.tipo)
 
   const totais = lancamentos.reduce((acc, lanc) => {
-    const valor = parseFloat(lanc.valor)
+    const valor = parseFloat(String(lanc.valor))
     if (lanc.tipo === 'Receita') {
       acc.receitas += valor
     } else {
@@ -136,19 +136,19 @@ export default function LancamentosPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Lançamentos</h1>
-          <p className="text-gray-600 mt-1">Registre suas receitas e despesas</p>
+          <h1 className="text-3xl font-bold text-gray-50">Lançamentos</h1>
+          <p className="text-gray-400 mt-1">Registre suas receitas e despesas</p>
         </div>
-        <Button onClick={() => { resetForm(); setShowModal(true) }}>
+        <Button onClick={() => { resetForm(); setShowModal(true) }} className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold">
           <Plus className="w-4 h-4 mr-2" />
           Novo Lançamento
         </Button>
@@ -156,34 +156,38 @@ export default function LancamentosPage() {
 
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="bg-[#12161f] border-[#222834]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Receitas</p>
-                <p className="text-2xl font-bold text-green-600">{formatCurrency(totais.receitas)}</p>
+                <p className="text-sm text-gray-400">Total Receitas</p>
+                <p className="text-2xl font-bold text-[#10b981]">{formatCurrency(totais.receitas)}</p>
               </div>
-              <TrendingUp className="w-8 h-8 text-green-600" />
+              <div className="p-2 bg-[#10b981]/10 rounded-lg border border-[#10b981]/20">
+                <TrendingUp className="w-6 h-6 text-[#10b981]" />
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#12161f] border-[#222834]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Despesas</p>
-                <p className="text-2xl font-bold text-red-600">{formatCurrency(totais.despesas)}</p>
+                <p className="text-sm text-gray-400">Total Despesas</p>
+                <p className="text-2xl font-bold text-[#ef4444]">{formatCurrency(totais.despesas)}</p>
               </div>
-              <TrendingDown className="w-8 h-8 text-red-600" />
+              <div className="p-2 bg-[#ef4444]/10 rounded-lg border border-[#ef4444]/20">
+                <TrendingDown className="w-6 h-6 text-[#ef4444]" />
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#12161f] border-[#222834]">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Saldo</p>
-                <p className={`text-2xl font-bold ${totais.receitas - totais.despesas >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p className="text-sm text-gray-400">Saldo</p>
+                <p className={`text-2xl font-bold ${totais.receitas - totais.despesas >= 0 ? 'text-[#eab308]' : 'text-[#f97316]'}`}>
                   {formatCurrency(totais.receitas - totais.despesas)}
                 </p>
               </div>
@@ -193,80 +197,100 @@ export default function LancamentosPage() {
       </div>
 
       {/* Lista de Lançamentos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico</CardTitle>
+      <Card className="bg-[#12161f] border-[#222834]">
+        <CardHeader className="border-b border-[#222834] bg-[#151a22]">
+          <CardTitle className="text-gray-100">Histórico</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {lancamentos.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500">Nenhum lançamento registrado</p>
-              <Button className="mt-4" onClick={() => { resetForm(); setShowModal(true) }}>
+              <Button className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-black px-6" onClick={() => { resetForm(); setShowModal(true) }}>
                 <Plus className="w-4 h-4 mr-2" />
                 Criar primeiro lançamento
               </Button>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {lancamentos.map((lancamento) => (
                 <div 
                   key={lancamento.id_lancamento}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#1a202c] rounded-xl border border-[#2a3140] hover:border-[#3e485e] transition-colors gap-4"
                 >
                   <div className="flex items-center space-x-4 flex-1">
-                    <div className={`p-2 rounded-full ${lancamento.tipo === 'Receita' ? 'bg-green-100' : 'bg-red-100'}`}>
+                    <div className={`p-2 rounded-lg border ${lancamento.tipo === 'Receita' ? 'bg-[#10b981]/10 border-[#10b981]/20' : 'bg-[#ef4444]/10 border-[#ef4444]/20'}`}>
                       {lancamento.tipo === 'Receita' ? (
-                        <TrendingUp className="w-4 h-4 text-green-600" />
+                        <TrendingUp className="w-5 h-5 text-[#10b981]" />
                       ) : (
-                        <TrendingDown className="w-4 h-4 text-red-600" />
+                        <TrendingDown className="w-5 h-5 text-[#ef4444]" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">{lancamento.descricao}</p>
-                      <p className="text-sm text-gray-600">
-                        {lancamento.nome_categoria} • {lancamento.nome_conta} • {formatDate(lancamento.data)}
+                      <p className="font-medium text-gray-200">{lancamento.descricao}</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        <span className="text-gray-300">{lancamento.nome_categoria}</span> • {lancamento.nome_conta} • {formatDate(lancamento.data)}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className={`text-lg font-bold ${lancamento.tipo === 'Receita' ? 'text-green-600' : 'text-red-600'}`}>
-                        {lancamento.tipo === 'Receita' ? '+' : '-'} {formatCurrency(parseFloat(lancamento.valor))}
+                    <div className="text-right hidden sm:block">
+                      <p className={`text-lg font-bold ${lancamento.tipo === 'Receita' ? 'text-[#10b981]' : 'text-[#ef4444]'}`}>
+                        {lancamento.tipo === 'Receita' ? '+' : '-'} {formatCurrency(parseFloat(String(lancamento.valor)))}
                       </p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs mt-1">
                         {lancamento.pago ? (
-                          <span className="text-green-600 flex items-center justify-end">
-                            <Check className="w-3 h-3 mr-1" />
-                            Pago
+                          <span className="text-[#10b981] flex items-center justify-end">
+                            <Check className="w-3 h-3 mr-1" /> Pago
                           </span>
                         ) : (
-                          <span className="text-orange-600 flex items-center justify-end">
-                            <X className="w-3 h-3 mr-1" />
-                            Pendente
+                          <span className="text-[#eab308] flex items-center justify-end">
+                            <X className="w-3 h-3 mr-1" /> Pendente
                           </span>
                         )}
                       </p>
                     </div>
                   </div>
-                  <div className="flex space-x-2 ml-4">
+                  
+                  {/* Mobile Value Display */}
+                  <div className="flex justify-between items-center sm:hidden w-full border-t border-[#2a3140] pt-3 mt-1">
+                    <p className={`text-base font-bold ${lancamento.tipo === 'Receita' ? 'text-[#10b981]' : 'text-[#ef4444]'}`}>
+                      {lancamento.tipo === 'Receita' ? '+' : '-'}{formatCurrency(parseFloat(String(lancamento.valor)))}
+                    </p>
+                    <p className="text-xs">
+                      {lancamento.pago ? (
+                        <span className="text-[#10b981] flex items-center">
+                          <Check className="w-3 h-3 mr-1" /> Pago
+                        </span>
+                      ) : (
+                        <span className="text-[#eab308] flex items-center">
+                          <X className="w-3 h-3 mr-1" /> Pendente
+                        </span>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="flex space-x-2 sm:ml-4 justify-end">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleTogglePago(lancamento)}
+                      className="border-[#3e485e] hover:bg-[#2a3140] text-gray-300"
                     >
-                      {lancamento.pago ? <X className="w-3 h-3" /> : <Check className="w-3 h-3" />}
+                      {lancamento.pago ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(lancamento)}
+                      className="border-[#3e485e] hover:bg-[#2a3140] text-gray-300"
                     >
-                      <Pencil className="w-3 h-3" />
+                      <Pencil className="w-4 h-4" />
                     </Button>
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDelete(lancamento.id_lancamento)}
+                      className="bg-red-500/20 text-red-500 hover:bg-red-500/30 border border-red-500/20"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -278,17 +302,17 @@ export default function LancamentosPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <Card className="w-full max-w-md my-8">
-            <CardHeader>
-              <CardTitle>{editingLancamento ? 'Editar Lançamento' : 'Novo Lançamento'}</CardTitle>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <Card className="w-full max-w-md my-8 bg-[#12161f] border-[#222834] shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+            <CardHeader className="border-b border-[#222834] bg-[#151a22]">
+              <CardTitle className="text-gray-100">{editingLancamento ? 'Editar Lançamento' : 'Novo Lançamento'}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium">Tipo</label>
+                  <label className="text-sm font-medium text-gray-300">Tipo</label>
                   <select
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                    className="flex h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 py-1 text-sm text-gray-200 mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
                     value={formData.tipo}
                     onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any, id_categoria: '' })}
                   >
@@ -297,9 +321,9 @@ export default function LancamentosPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Conta</label>
+                  <label className="text-sm font-medium text-gray-300">Conta</label>
                   <select
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                    className="flex h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 py-1 text-sm text-gray-200 mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
                     value={formData.id_conta}
                     onChange={(e) => setFormData({ ...formData, id_conta: e.target.value })}
                     required
@@ -311,9 +335,9 @@ export default function LancamentosPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Categoria</label>
+                  <label className="text-sm font-medium text-gray-300">Categoria</label>
                   <select
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                    className="flex h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 py-1 text-sm text-gray-200 mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
                     value={formData.id_categoria}
                     onChange={(e) => setFormData({ ...formData, id_categoria: e.target.value })}
                     required
@@ -325,48 +349,53 @@ export default function LancamentosPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Valor</label>
+                  <label className="text-sm font-medium text-gray-300">Valor</label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.valor}
                     onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
                     required
+                    className="h-11 mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Data</label>
+                  <label className="text-sm font-medium text-gray-300">Data</label>
                   <Input
                     type="date"
                     value={formData.data}
                     onChange={(e) => setFormData({ ...formData, data: e.target.value })}
                     required
+                    className="h-11 mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500 [color-scheme:dark]"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Descrição</label>
+                  <label className="text-sm font-medium text-gray-300">Descrição</label>
                   <Input
                     value={formData.descricao}
                     onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                     required
+                    className="h-11 mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
                   />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="pago"
-                    checked={formData.pago}
-                    onChange={(e) => setFormData({ ...formData, pago: e.target.checked })}
-                    className="w-4 h-4"
-                  />
-                  <label htmlFor="pago" className="text-sm font-medium">Pago</label>
+                <div className="flex items-center space-x-3 pt-2">
+                  <div className="flex items-center justify-center w-5 h-5 rounded border border-[#3e485e] bg-[#1a202c]">
+                    <input
+                      type="checkbox"
+                      id="pago"
+                      checked={formData.pago}
+                      onChange={(e) => setFormData({ ...formData, pago: e.target.checked })}
+                      className="w-4 h-4 accent-yellow-500 rounded"
+                    />
+                  </div>
+                  <label htmlFor="pago" className="text-sm font-medium text-gray-300 cursor-pointer">Pago / Efetivado</label>
                 </div>
-                <div className="flex space-x-2 pt-4">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setShowModal(false)}>
+                <div className="flex space-x-3 pt-4 border-t border-[#222834]">
+                  <Button type="button" variant="outline" className="flex-1 border-[#3e485e] text-gray-300 hover:bg-[#1a202c]" onClick={() => setShowModal(false)}>
                     Cancelar
                   </Button>
-                  <Button type="submit" className="flex-1">
-                    {editingLancamento ? 'Salvar' : 'Criar'}
+                  <Button type="submit" className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold">
+                    {editingLancamento ? 'Salvar' : 'Criar Lançamento'}
                   </Button>
                 </div>
               </form>

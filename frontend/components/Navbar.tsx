@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import Image from 'next/image'
 import {
   LayoutDashboard,
   Wallet,
@@ -16,7 +15,6 @@ import {
   X,
   Upload,
   Bot,
-  ChevronDown,
   User
 } from 'lucide-react'
 import { useState } from 'react'
@@ -28,7 +26,7 @@ const navItems = [
   { href: '/dashboard/lancamentos', label: 'Lançamentos', icon: ArrowLeftRight },
   { href: '/dashboard/metas', label: 'Metas', icon: Target },
   { href: '/dashboard/importar', label: 'Importar', icon: Upload },
-  { href: '/dashboard/copilot', label: 'Copilot IA', icon: Bot },
+  { href: '/dashboard/copilot', label: 'PatarIA', icon: Bot },
 ]
 
 export default function Navbar() {
@@ -37,21 +35,19 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <nav className="bg-white/80 backdrop-blur-xl border-b border-gray-200/60 sticky top-0 z-50 shadow-sm">
+    <nav className="bg-[#0a0f16]/95 backdrop-blur-xl border-b border-[#222834] sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center space-x-3 group">
-              <Image
-                src="/novaLOGO.png"
-                alt="Sob Controle Logo"
-                width={32}
-                height={32}
-                className="rounded-lg group-hover:scale-105 transition-transform"
-              />
-              <span className="text-xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
-                Sob Controle
-              </span>
+            {/* Unified Logo */}
+            <Link href="/dashboard" className="flex items-center group">
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-[#2a3140] shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center justify-center bg-[#f0e6d2]">
+                <img 
+                  src="/novaLOGO.png" 
+                  alt="Logo SobControle Finanças" 
+                  className="w-full h-full object-cover scale-[1.05] transition-transform duration-300 group-hover:scale-[1.12]"
+                />
+              </div>
             </Link>
 
             {/* Desktop Navigation */}
@@ -66,14 +62,14 @@ export default function Navbar() {
                     href={item.href}
                     className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-sky-50 text-sky-700 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'
+                        : 'text-gray-400 hover:bg-[#1a202c] hover:text-gray-200'
                     } ${isCopilot ? 'relative' : ''}`}
                   >
-                    <Icon className={`w-4 h-4 ${isCopilot && !isActive ? 'text-violet-500' : ''}`} />
+                    <Icon className={`w-4 h-4 ${isCopilot && !isActive ? 'text-violet-400' : ''}`} />
                     <span>{item.label}</span>
                     {isCopilot && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-violet-500 rounded-full animate-pulse" />
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-violet-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
                     )}
                   </Link>
                 )
@@ -84,17 +80,18 @@ export default function Navbar() {
           {/* User Menu */}
           <div className="flex items-center space-x-3">
             <div className="hidden md:flex items-center space-x-3">
-              <div className="flex items-center space-x-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
-                  <User className="w-3.5 h-3.5 text-white" />
+              <div className="flex items-center space-x-2 px-3 py-1.5 bg-[#151a22] rounded-lg border border-[#222834]">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2a3140] to-[#1a202c] flex items-center justify-center border border-[#3e485e]">
+                  <User className="w-3.5 h-3.5 text-gray-300" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">{user?.nome}</span>
+                <span className="text-sm font-medium text-gray-300">{user?.nome}</span>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={logout}
-                className="text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                className="text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                title="Sair"
               >
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -103,7 +100,7 @@ export default function Navbar() {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-2 rounded-lg text-gray-400 hover:bg-[#1a202c] transition-colors"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -113,7 +110,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl">
+        <div className="lg:hidden border-t border-[#222834] bg-[#0a0f16]/95 backdrop-blur-xl">
           <div className="px-3 pt-3 pb-4 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon
@@ -125,8 +122,8 @@ export default function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-sky-50 text-sky-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'
+                      : 'text-gray-400 hover:bg-[#1a202c] hover:text-gray-200'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -134,19 +131,19 @@ export default function Navbar() {
                 </Link>
               )
             })}
-            <div className="border-t border-gray-100 pt-3 mt-3">
-              <div className="px-3 py-2 text-sm text-gray-600 flex items-center space-x-2">
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
-                  <User className="w-3.5 h-3.5 text-white" />
+            <div className="border-t border-[#222834] pt-3 mt-3">
+              <div className="px-3 py-2 text-sm text-gray-400 flex items-center space-x-2">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#2a3140] to-[#1a202c] flex items-center justify-center border border-[#3e485e]">
+                  <User className="w-3.5 h-3.5 text-gray-300" />
                 </div>
-                <span className="font-medium">{user?.nome}</span>
+                <span className="font-medium text-gray-200">{user?.nome}</span>
               </div>
               <button
                 onClick={() => {
                   setMobileMenuOpen(false)
                   logout()
                 }}
-                className="flex items-center space-x-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
+                className="flex items-center space-x-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-400/10 transition-all"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Sair</span>

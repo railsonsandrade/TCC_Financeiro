@@ -67,7 +67,7 @@ export default function ContasPage() {
     setFormData({
       nome: conta.nome,
       tipo: conta.tipo,
-      saldo_inicial: conta.saldo_inicial,
+      saldo_inicial: String(conta.saldo_inicial),
       cor: conta.cor || '#3B82F6'
     })
     setShowModal(true)
@@ -86,19 +86,19 @@ export default function ContasPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Contas Financeiras</h1>
-          <p className="text-gray-600 mt-1">Gerencie suas contas bancárias e carteiras</p>
+          <h1 className="text-3xl font-bold text-gray-50">Contas Financeiras</h1>
+          <p className="text-gray-400 mt-1">Gerencie suas contas bancárias e carteiras</p>
         </div>
-        <Button onClick={() => { resetForm(); setShowModal(true) }}>
+        <Button onClick={() => { resetForm(); setShowModal(true) }} className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold">
           <Plus className="w-4 h-4 mr-2" />
           Nova Conta
         </Button>
@@ -106,39 +106,39 @@ export default function ContasPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {contas.map((conta) => (
-          <Card key={conta.id_conta} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
+          <Card key={conta.id_conta} className="bg-[#12161f] border-[#222834] hover:shadow-lg transition-shadow hover:border-[#3e485e]">
+            <CardHeader className="pb-3 border-b border-[#222834] bg-[#151a22]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div 
-                    className="w-4 h-4 rounded-full" 
-                    style={{ backgroundColor: conta.cor || '#3B82F6' }}
+                    className="w-4 h-4 rounded-full shadow-md" 
+                    style={{ backgroundColor: conta.cor || '#3b82f6' }}
                   />
-                  <CardTitle className="text-lg">{conta.nome}</CardTitle>
+                  <CardTitle className="text-lg text-gray-100">{conta.nome}</CardTitle>
                 </div>
                 {conta.ativa ? (
-                  <Eye className="w-4 h-4 text-green-600" />
+                  <Eye className="w-4 h-4 text-emerald-500" />
                 ) : (
-                  <EyeOff className="w-4 h-4 text-gray-400" />
+                  <EyeOff className="w-4 h-4 text-gray-500" />
                 )}
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-4">
               <div>
-                <p className="text-sm text-gray-600">Tipo</p>
-                <p className="font-medium">{conta.tipo}</p>
+                <p className="text-sm text-gray-400">Tipo</p>
+                <p className="font-medium text-gray-200">{conta.tipo}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Saldo Atual</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {formatCurrency(parseFloat(conta.saldo_atual || conta.saldo_inicial))}
+                <p className="text-sm text-gray-400">Saldo Atual</p>
+                <p className="text-2xl font-bold text-gray-50">
+                  {formatCurrency(parseFloat(String(conta.saldo_atual || conta.saldo_inicial)))}
                 </p>
               </div>
-              <div className="flex space-x-2 pt-2">
+              <div className="flex space-x-2 pt-4 border-t border-[#222834]">
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="flex-1"
+                  className="flex-1 border-[#3e485e] text-gray-300 hover:bg-[#1a202c]"
                   onClick={() => handleEdit(conta)}
                 >
                   <Pencil className="w-3 h-3 mr-1" />
@@ -148,8 +148,9 @@ export default function ContasPage() {
                   variant="destructive" 
                   size="sm"
                   onClick={() => handleDelete(conta.id_conta)}
+                  className="bg-red-500/20 text-red-500 hover:bg-red-500/30 border border-red-500/20"
                 >
-                  <Trash2 className="w-3 h-3" />
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </CardContent>
@@ -158,10 +159,10 @@ export default function ContasPage() {
       </div>
 
       {contas.length === 0 && (
-        <Card>
+        <Card className="bg-[#12161f] border-[#222834]">
           <CardContent className="text-center py-12">
-            <p className="text-gray-500">Nenhuma conta cadastrada</p>
-            <Button className="mt-4" onClick={() => { resetForm(); setShowModal(true) }}>
+            <p className="text-gray-500 text-lg">Nenhuma conta cadastrada</p>
+            <Button className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold" onClick={() => { resetForm(); setShowModal(true) }}>
               <Plus className="w-4 h-4 mr-2" />
               Criar primeira conta
             </Button>
@@ -171,25 +172,26 @@ export default function ContasPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle>{editingConta ? 'Editar Conta' : 'Nova Conta'}</CardTitle>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <Card className="w-full max-w-md bg-[#12161f] border-[#222834] shadow-[0_0_40px_rgba(0,0,0,0.5)] my-8">
+            <CardHeader className="border-b border-[#222834] bg-[#151a22]">
+              <CardTitle className="text-gray-100">{editingConta ? 'Editar Conta' : 'Nova Conta'}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium">Nome</label>
+                  <label className="text-sm font-medium text-gray-300">Nome</label>
                   <Input
                     value={formData.nome}
                     onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                     required
+                    className="mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Tipo</label>
+                  <label className="text-sm font-medium text-gray-300">Tipo</label>
                   <select
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                    className="flex h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 py-1 text-sm text-gray-200 mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
                     value={formData.tipo}
                     onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
                   >
@@ -200,28 +202,30 @@ export default function ContasPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Saldo Inicial</label>
+                  <label className="text-sm font-medium text-gray-300">Saldo Inicial</label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.saldo_inicial}
                     onChange={(e) => setFormData({ ...formData, saldo_inicial: e.target.value })}
                     required
+                    className="mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Cor</label>
+                  <label className="text-sm font-medium text-gray-300">Cor</label>
                   <Input
                     type="color"
                     value={formData.cor}
                     onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
+                    className="mt-1 border-[#2a3140] bg-[#1a202c] h-11 p-1 w-full"
                   />
                 </div>
-                <div className="flex space-x-2 pt-4">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setShowModal(false)}>
+                <div className="flex space-x-3 pt-6 border-t border-[#222834]">
+                  <Button type="button" variant="outline" className="flex-1 border-[#3e485e] hover:bg-[#1a202c] text-gray-300" onClick={() => setShowModal(false)}>
                     Cancelar
                   </Button>
-                  <Button type="submit" className="flex-1">
+                  <Button type="submit" className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold">
                     {editingConta ? 'Salvar' : 'Criar'}
                   </Button>
                 </div>
@@ -233,4 +237,3 @@ export default function ContasPage() {
     </div>
   )
 }
-
