@@ -1,33 +1,74 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Toast, ToastType } from '@/components/ui/toast'
 import Link from 'next/link'
-import { Wallet, Mail, Lock, ArrowRight } from 'lucide-react'
+import Image from 'next/image'
+import AnimatedWaves from '@/components/AnimatedWaves'
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+
+const TAGLINES = [
+  'Controle Total das suas Finanças',
+  'Metas Inteligentes, Resultados Reais',
+  'Menos Preocupação, Mais Economia',
+  'Seu Dinheiro Sob Controle',
+  'Planeje, Economize, Conquiste',
+]
+
+function useTypewriter(phrases: string[], typeSpeed = 80, deleteSpeed = 40, pauseTime = 2000) {
+  const [displayText, setDisplayText] = useState('')
+  const [phraseIndex, setPhraseIndex] = useState(0)
+  const [charIndex, setCharIndex] = useState(0)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    const currentPhrase = phrases[phraseIndex]
+
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (charIndex < currentPhrase.length) {
+          setDisplayText(currentPhrase.substring(0, charIndex + 1))
+          setCharIndex(charIndex + 1)
+        } else {
+          setTimeout(() => setIsDeleting(true), pauseTime)
+        }
+      } else {
+        if (charIndex > 0) {
+          setDisplayText(currentPhrase.substring(0, charIndex - 1))
+          setCharIndex(charIndex - 1)
+        } else {
+          setIsDeleting(false)
+          setPhraseIndex((prev) => (prev + 1) % phrases.length)
+        }
+      }
+    }, isDeleting ? deleteSpeed : typeSpeed)
+
+    return () => clearTimeout(timeout)
+  }, [charIndex, isDeleting, phraseIndex, phrases, typeSpeed, deleteSpeed, pauseTime])
+
+  return displayText
+}
 
 export default function LoginPage() {
   const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
-
-  console.log('LoginPage renderizado', { login: typeof login })
+  const typedText = useTypewriter(TAGLINES)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    console.log('Iniciando login...', { email, senha: '***' })
 
     try {
       await login({ email, senha })
-      console.log('Login bem-sucedido!')
       setToast({ message: 'Login realizado com sucesso!', type: 'success' })
     } catch (err: any) {
-      console.error('Erro no login:', err)
       const errorMessage = err.response?.data?.detail || err.message || 'Email ou senha incorretos'
       setToast({ message: errorMessage, type: 'error' })
       setLoading(false)
@@ -35,7 +76,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0d2847 40%, #134b7a 70%, #1a6fb5 100%)' }}>
       {/* Toast */}
       {toast && (
         <Toast
@@ -45,73 +86,91 @@ export default function LoginPage() {
         />
       )}
 
-      {/* Lado Esquerdo - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 flex-col justify-between text-white">
-        <div>
-          <div className="flex items-center space-x-3">
-            <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-              <Wallet className="w-8 h-8" />
-            </div>
-            <h1 className="text-3xl font-bold">Gestão Financeira</h1>
-          </div>
-        </div>
+      {/* Animated SVG Waves Background */}
+      <AnimatedWaves />
 
-        <div className="space-y-6">
-          <h2 className="text-4xl font-bold leading-tight">
-            Controle suas finanças de forma simples e eficiente
-          </h2>
-          <p className="text-blue-100 text-lg">
-            Gerencie suas contas, categorias, lançamentos e metas financeiras em um só lugar.
+      {/* Main Content */}
+      <div className="relative z-10 min-h-screen flex flex-col lg:flex-row items-center justify-center px-6 py-12 gap-12 lg:gap-24">
+        
+        {/* Left Side - Branding */}
+        <div className="flex flex-col items-center lg:items-start text-center lg:text-left max-w-lg space-y-8">
+          {/* Logo */}
+          <div className="flex flex-col items-center lg:items-start space-y-4">
+            <Image
+              src="/novaLOGO.png"
+              alt="Sob Controle Logo"
+              width={180}
+              height={180}
+              className="drop-shadow-2xl"
+              priority
+            />
+          </div>
+
+          {/* Typewriter Text */}
+          <div className="min-h-[100px]">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight" style={{
+              background: 'linear-gradient(135deg, #38bdf8, #818cf8, #38bdf8)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundSize: '200% 200%',
+            }}>
+              {typedText}
+              <span className="inline-block w-0.5 h-8 md:h-10 bg-sky-400 ml-1 animate-pulse align-middle" />
+            </h2>
+          </div>
+
+          {/* Description */}
+          <p className="text-sky-200/70 text-base md:text-lg leading-relaxed max-w-md">
+            Gestão financeira inteligente que organiza, controla e transforma suas finanças pessoais.
           </p>
-          <div className="grid grid-cols-2 gap-4 pt-8">
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <p className="text-3xl font-bold">100%</p>
-              <p className="text-blue-100 text-sm">Gratuito</p>
+
+          {/* Stats */}
+          <div className="flex items-center gap-10 md:gap-14 pt-4">
+            <div className="text-center">
+              <p className="text-2xl md:text-3xl font-bold text-white">100%</p>
+              <p className="text-sky-300/60 text-xs md:text-sm font-medium tracking-wider uppercase mt-1">Gratuito</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-              <p className="text-3xl font-bold">24/7</p>
-              <p className="text-blue-100 text-sm">Disponível</p>
+            <div className="text-center">
+              <p className="text-2xl md:text-3xl font-bold text-white">24/7</p>
+              <p className="text-sky-300/60 text-xs md:text-sm font-medium tracking-wider uppercase mt-1">Disponível</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl md:text-3xl font-bold text-white">99.9%</p>
+              <p className="text-sky-300/60 text-xs md:text-sm font-medium tracking-wider uppercase mt-1">Uptime</p>
             </div>
           </div>
         </div>
 
-        <div className="text-blue-100 text-sm">
-          © 2025 Sob Controle. Todos os direitos reservados.
-        </div>
-      </div>
-
-      {/* Lado Direito - Formulário */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
-        <div className="w-full max-w-md">
-          {/* Logo Mobile */}
-          <div className="lg:hidden flex items-center justify-center space-x-3 mb-8">
-            <div className="bg-blue-600 p-3 rounded-xl">
-              <Wallet className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Gestão Financeira</h1>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Bem-vindo de volta!</h2>
-              <p className="text-gray-600">Entre com suas credenciais para continuar</p>
+        {/* Right Side - Login Card */}
+        <div className="w-full max-w-sm lg:max-w-md">
+          <div 
+            className="rounded-2xl p-8 md:p-10 border"
+            style={{
+              background: 'rgba(255,255,255,0.95)',
+              backdropFilter: 'blur(20px)',
+              borderColor: 'rgba(255,255,255,0.2)',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.3), 0 0 40px rgba(56,189,248,0.08)',
+            }}
+          >
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-gray-900">Bem-vindo de volta</h3>
+              <p className="text-gray-500 mt-2 text-sm">Entre com suas credenciais</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Mail className="h-4 w-4 text-gray-400" />
                   </div>
-                  <Input
+                  <input
+                    id="login-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    placeholder="seu@email.com"
+                    className="w-full h-11 pl-10 pr-4 rounded-xl border border-gray-200 bg-gray-50/80 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:border-sky-400 transition-all"
+                    placeholder="jose.ricardo@brobot.com.br"
                     required
                     disabled={loading}
                   />
@@ -119,64 +178,80 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Senha
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm font-medium text-gray-700">Senha</label>
+                  <button type="button" className="text-xs text-sky-500 hover:text-sky-600 font-medium transition-colors">
+                    Esqueci minha senha
+                  </button>
+                </div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Lock className="h-4 w-4 text-gray-400" />
                   </div>
-                  <Input
-                    type="password"
+                  <input
+                    id="login-password"
+                    type={showPassword ? 'text' : 'password'}
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
-                    className="pl-10"
-                    placeholder="••••••••"
+                    className="w-full h-11 pl-10 pr-11 rounded-xl border border-gray-200 bg-gray-50/80 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:border-sky-400 transition-all"
+                    placeholder="••••••••••"
                     required
                     disabled={loading}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
 
-              <Button
+              <button
+                id="login-submit"
                 type="submit"
-                className="w-full h-12 text-base font-semibold group"
                 disabled={loading}
-                onClick={() => console.log('Botão clicado!')}
+                className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  background: 'linear-gradient(135deg, #0ea5e9, #38bdf8, #06b6d4)',
+                  boxShadow: '0 4px 15px rgba(14,165,233,0.4)',
+                }}
+                onMouseEnter={(e) => { (e.target as HTMLElement).style.boxShadow = '0 6px 20px rgba(14,165,233,0.6)' }}
+                onMouseLeave={(e) => { (e.target as HTMLElement).style.boxShadow = '0 4px 15px rgba(14,165,233,0.4)' }}
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white mr-2" />
                     Entrando...
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center">
-                    Entrar
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </div>
+                  'Entrar'
                 )}
-              </Button>
+              </button>
             </form>
 
-            <div className="mt-8 text-center">
-              <p className="text-gray-600">
+            <div className="mt-6 text-center">
+              <p className="text-gray-500 text-sm">
                 Não tem uma conta?{' '}
                 <Link
                   href="/register"
-                  className="text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+                  className="text-sky-500 hover:text-sky-600 font-semibold transition-colors"
                 >
                   Criar conta gratuita
                 </Link>
               </p>
             </div>
           </div>
-
-          <p className="text-center text-sm text-gray-500 mt-8">
-            Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade
-          </p>
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="absolute bottom-4 left-0 right-0 text-center">
+        <p className="text-sky-300/40 text-xs">
+          © 2026 Sob Controle — Todos os direitos reservados
+        </p>
       </div>
     </div>
   )
 }
-

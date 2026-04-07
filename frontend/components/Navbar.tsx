@@ -13,7 +13,11 @@ import {
   Target,
   LogOut,
   Menu,
-  X
+  X,
+  Upload,
+  Bot,
+  ChevronDown,
+  User
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -23,6 +27,8 @@ const navItems = [
   { href: '/dashboard/categorias', label: 'Categorias', icon: Tag },
   { href: '/dashboard/lancamentos', label: 'Lançamentos', icon: ArrowLeftRight },
   { href: '/dashboard/metas', label: 'Metas', icon: Target },
+  { href: '/dashboard/importar', label: 'Importar', icon: Upload },
+  { href: '/dashboard/copilot', label: 'Copilot IA', icon: Bot },
 ]
 
 export default function Navbar() {
@@ -31,38 +37,44 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-white/80 backdrop-blur-xl border-b border-gray-200/60 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center space-x-3">
+            <Link href="/dashboard" className="flex items-center space-x-3 group">
               <Image
                 src="/novaLOGO.png"
                 alt="Sob Controle Logo"
                 width={32}
                 height={32}
-                className="rounded-lg"
+                className="rounded-lg group-hover:scale-105 transition-transform"
               />
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Sob Controle</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
+                Sob Controle
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:ml-10 md:flex md:space-x-1">
+            <div className="hidden lg:ml-10 lg:flex lg:space-x-1">
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href
+                const isCopilot = item.href === '/dashboard/copilot'
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
+                        ? 'bg-sky-50 text-sky-700 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    } ${isCopilot ? 'relative' : ''}`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className={`w-4 h-4 ${isCopilot && !isActive ? 'text-violet-500' : ''}`} />
                     <span>{item.label}</span>
+                    {isCopilot && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-violet-500 rounded-full animate-pulse" />
+                    )}
                   </Link>
                 )
               })}
@@ -70,26 +82,30 @@ export default function Navbar() {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:block text-sm text-gray-700">
-              Olá, <span className="font-medium">{user?.nome}</span>
+          <div className="flex items-center space-x-3">
+            <div className="hidden md:flex items-center space-x-3">
+              <div className="flex items-center space-x-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
+                  <User className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">{user?.nome}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={logout}
+                className="text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={logout}
-              className="hidden md:flex items-center space-x-2"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Sair</span>
-            </Button>
 
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
+              className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -97,8 +113,8 @@ export default function Navbar() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200">
-          <div className="px-2 pt-2 pb-3 space-y-1">
+        <div className="lg:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl">
+          <div className="px-3 pt-3 pb-4 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
@@ -107,10 +123,10 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
+                  className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-sky-50 text-sky-700'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -118,16 +134,19 @@ export default function Navbar() {
                 </Link>
               )
             })}
-            <div className="border-t border-gray-200 pt-2 mt-2">
-              <div className="px-3 py-2 text-sm text-gray-700">
-                Olá, <span className="font-medium">{user?.nome}</span>
+            <div className="border-t border-gray-100 pt-3 mt-3">
+              <div className="px-3 py-2 text-sm text-gray-600 flex items-center space-x-2">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
+                  <User className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="font-medium">{user?.nome}</span>
               </div>
               <button
                 onClick={() => {
                   setMobileMenuOpen(false)
                   logout()
                 }}
-                className="flex items-center space-x-2 w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+                className="flex items-center space-x-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Sair</span>
@@ -139,4 +158,3 @@ export default function Navbar() {
     </nav>
   )
 }
-
