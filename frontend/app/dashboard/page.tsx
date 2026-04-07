@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { contasAPI, lancamentosAPI, metasAPI, Conta, Meta } from '@/lib/api'
 import { formatCurrency } from '@/lib/utils'
-import { Wallet, TrendingUp, TrendingDown, Target, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { Wallet, TrendingUp, TrendingDown, Target, ArrowUpRight, ArrowDownRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, addMonths } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -134,9 +134,9 @@ export default function DashboardPage() {
         <div className="text-right">
           <p className="text-sm text-gray-500">Período</p>
           <div className="flex items-center justify-end space-x-3">
-            <button onClick={prevMonth} className="px-3 py-1 bg-slate-100 rounded-md hover:bg-slate-200">◀</button>
+            <button onClick={prevMonth} className="px-3 py-1 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
             <p className="text-lg font-semibold text-gray-900">{format(periodo, 'MMMM yyyy', { locale: ptBR })}</p>
-            <button onClick={nextMonth} className="px-3 py-1 bg-slate-100 rounded-md hover:bg-slate-200">▶</button>
+            <button onClick={nextMonth} className="px-3 py-1 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"><ChevronRight className="w-4 h-4" /></button>
           </div>
         </div>
       </div>
