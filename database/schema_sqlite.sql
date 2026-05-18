@@ -195,6 +195,7 @@ SELECT
     c.nome AS nome_conta,
     c.tipo AS tipo_conta,
     c.saldo_inicial,
+    c.cor,
     COALESCE(SUM(CASE WHEN l.tipo = 'Receita' AND l.pago = 1 THEN l.valor ELSE 0 END), 0) AS total_receitas,
     COALESCE(SUM(CASE WHEN l.tipo = 'Despesa' AND l.pago = 1 THEN l.valor ELSE 0 END), 0) AS total_despesas,
     c.saldo_inicial +
@@ -203,7 +204,7 @@ SELECT
 FROM conta_financeira c
 LEFT JOIN lancamento l ON c.id_conta = l.id_conta
 WHERE c.ativa = 1
-GROUP BY c.id_conta, c.id_usuario, c.nome, c.tipo, c.saldo_inicial;
+GROUP BY c.id_conta, c.id_usuario, c.nome, c.tipo, c.saldo_inicial, c.cor;
 
 -- View: Resumo de gastos por categoria no mês
 DROP VIEW IF EXISTS vw_resumo_categoria_mes;

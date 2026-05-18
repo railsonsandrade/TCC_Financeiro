@@ -103,7 +103,7 @@ class ContaFinanceiraRepository:
     def get_com_saldo(self, id_conta: int) -> Optional[ContaFinanceiraComSaldo]:
         """Busca uma conta com saldo calculado usando a view"""
         query = """
-            SELECT id_conta, id_usuario, nome_conta, tipo_conta, saldo_inicial,
+            SELECT id_conta, id_usuario, nome_conta, tipo_conta, saldo_inicial, cor,
                    total_receitas, total_despesas, saldo_atual
             FROM vw_saldo_conta
             WHERE id_conta = ?
@@ -123,7 +123,8 @@ class ContaFinanceiraRepository:
                 total_despesas=Decimal(str(row['total_despesas'])),
                 saldo_atual=Decimal(str(row['saldo_atual'])),
                 data_criacao=datetime.now(),  # View não tem data_criacao
-                ativa=True
+                ativa=True,
+                cor=row.get('cor') or '#3B82F6'
             )
         
         return None
@@ -131,7 +132,7 @@ class ContaFinanceiraRepository:
     def get_todas_com_saldo(self, id_usuario: int) -> List[ContaFinanceiraComSaldo]:
         """Lista todas as contas de um usuário com saldo calculado"""
         query = """
-            SELECT id_conta, id_usuario, nome_conta, tipo_conta, saldo_inicial,
+            SELECT id_conta, id_usuario, nome_conta, tipo_conta, saldo_inicial, cor,
                    total_receitas, total_despesas, saldo_atual
             FROM vw_saldo_conta
             WHERE id_usuario = ?
@@ -152,7 +153,8 @@ class ContaFinanceiraRepository:
                 total_despesas=Decimal(str(row['total_despesas'])),
                 saldo_atual=Decimal(str(row['saldo_atual'])),
                 data_criacao=datetime.now(),
-                ativa=True
+                ativa=True,
+                cor=row.get('cor') or '#3B82F6'
             ))
 
         return contas
