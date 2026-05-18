@@ -164,42 +164,37 @@ class DatabaseConnection:
         Returns:
             ID gerado pelo banco de dados
         """
-        if self.is_postgres:
-            # PostgreSQL precisa de RETURNING para obter o ID no INSERT
-            # Como não sabemos a PK, vamos tentar injetar RETURNING.
-            # Alternativamente, a aplicação que chama isso deve incluir o RETURNING id na query.
-            # No nosso sistema, o sqlite lastrowid cuida disso.
-            # Vamos modificar a query para injetar RETURNING se não existir:
-            # NOTA: Assumimos que o primeiro campo id_* é a PK ou tentamos injetar no final
-            
-            # Uma abordagem mais segura no PostgreSQL é usar o método `RETURNING id`
-            # Mas como não sabemos o nome do ID, usaremos um fallback:
-            # Vamos assumir que as rotas passarão a usar query de RETURNING explícita
-            # Mas, se não houver, pegamos o lastrowid simulado no SQLite
-            
-            # ATENÇÃO: As queries INSERT no PostgreSQL precisam retornar algo.
-            # Vamos implementar um wrapper se for insert comum
-            pass
-
-        query = self._convert_query(query)
+        query_converted = self._convert_query(query)
 
         with self.get_cursor() as cursor:
-            # Se for Postgres, temos um problema nativo com lastrowid
             if self.is_postgres:
-                # Injeta RETURNING * no final do INSERT para pegarmos o ID gerado (a PK é sempre a primeira coluna)
-                if query.strip().upper().startswith("INSERT") and "RETURNING" not in query.upper():
-                    query = f"{query} RETURNING *"
+                # Detecta o nome da coluna PK a partir do INSERT.
+                # A convenção do projeto é: tabela 'usuario' -> 'id_usuario', 'conta_financeira' -> 'id_conta', etc.
+                # Extraimos o nome da tabela e montamos o id correspondente.
+                pk_col = 'id'  # fallback genérico
+                table_match = re.search(r'INSERT\s+INTO\s+(\w+)', query, re.IGNORECASE)
+                if table_match:
+                    table_name = table_match.group(1).lower()
+                    # Mapeia tabela -> coluna PK
+                    pk_map = {
+                        'usuario': 'id_usuario',
+                        'conta_financeira': 'id_conta',
+                        'categoria': 'id_categoria',
+                        'lancamento': 'id_lancamento',
+                        'meta_financeira': 'id_meta',
+                        'dashboard_widget': 'id_widget',
+                        'telegram_usuario': 'id',
+                    }
+                    pk_col = pk_map.get(table_name, 'id')
 
-                cursor.execute(query, params)
-                try:
-                    result = cursor.fetchone()
-                    if result:
-                        return list(result.values())[0]  # Retorna o valor da primeira coluna (ID)
-                except Exception:
-                    pass
+                returning_query = f"{query_converted} RETURNING {pk_col}"
+                cursor.execute(returning_query, params)
+                result = cursor.fetchone()
+                if result:
+                    return result[0]
                 return 1
             else:
-                cursor.execute(query, params)
+                cursor.execute(query_converted, params)
                 return cursor.lastrowid
     
     def test_connection(self) -> bool:
