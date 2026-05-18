@@ -1,12 +1,69 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { contasAPI, Conta } from '@/lib/api'
 import { formatCurrency } from '@/lib/utils'
-import { Plus, Pencil, Trash2, Eye, EyeOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, Eye, EyeOff, Palette } from 'lucide-react'
+
+// Paleta de cores pré-definidas para seleção rápida
+const COR_PALETTE = [
+  '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
+  '#8B5CF6', '#EC4899', '#06B6D4', '#F97316',
+  '#6366F1', '#14B8A6', '#84CC16', '#A855F7',
+]
+
+interface ColorPickerProps {
+  value: string
+  onChange: (cor: string) => void
+}
+
+function ColorPicker({ value, onChange }: ColorPickerProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  return (
+    <div className="mt-1 space-y-3">
+      {/* Preview + input nativo */}
+      <div
+        className="flex items-center gap-3 h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 cursor-pointer hover:border-yellow-500 transition-colors"
+        onClick={() => inputRef.current?.click()}
+      >
+        <div
+          className="w-6 h-6 rounded-full border-2 border-white/20 shadow-md flex-shrink-0"
+          style={{ backgroundColor: value }}
+        />
+        <span className="text-sm text-gray-300 font-mono flex-1">{value.toUpperCase()}</span>
+        <Palette className="w-4 h-4 text-gray-500" />
+        {/* Input nativo invisível */}
+        <input
+          ref={inputRef}
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="sr-only"
+        />
+      </div>
+
+      {/* Paleta de cores rápidas */}
+      <div className="grid grid-cols-6 gap-2">
+        {COR_PALETTE.map((cor) => (
+          <button
+            key={cor}
+            type="button"
+            onClick={() => onChange(cor)}
+            className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${
+              value === cor ? 'border-white scale-110' : 'border-transparent'
+            }`}
+            style={{ backgroundColor: cor }}
+            title={cor}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default function ContasPage() {
   const [contas, setContas] = useState<Conta[]>([])
@@ -111,7 +168,10 @@ export default function ContasPage() {
           <h1 className="text-3xl font-bold text-gray-50">Contas Financeiras</h1>
           <p className="text-gray-400 mt-1">Gerencie suas contas bancárias e carteiras</p>
         </div>
-        <Button onClick={() => { resetForm(); setShowModal(true) }} className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold">
+        <Button
+          onClick={() => { resetForm(); setShowModal(true) }}
+          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nova Conta
         </Button>
@@ -119,23 +179,28 @@ export default function ContasPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {contas.map((conta) => (
-          <Card key={conta.id_conta} className="bg-[#12161f] border-[#222834] hover:shadow-lg transition-shadow hover:border-[#3e485e]">
+          <Card
+            key={conta.id_conta}
+            className="bg-[#12161f] border-[#222834] hover:shadow-lg transition-shadow hover:border-[#3e485e]"
+          >
             <CardHeader className="pb-3 border-b border-[#222834] bg-[#151a22]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div
-                    className="w-4 h-4 rounded-full shadow-md"
+                    className="w-4 h-4 rounded-full shadow-md flex-shrink-0"
                     style={{ backgroundColor: conta.cor || '#3b82f6' }}
                   />
                   <CardTitle className="text-lg text-gray-100">{conta.nome}</CardTitle>
                 </div>
+                {/* Botão olhinho — oculta/exibe o saldo ao clicar */}
                 <button
+                  type="button"
                   onClick={() => toggleSaldo(conta.id_conta)}
-                  className="p-1 rounded-lg hover:bg-[#1a202c] transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-[#1a202c] transition-colors"
                   title={saldoOculto.has(conta.id_conta) ? 'Mostrar saldo' : 'Ocultar saldo'}
                 >
                   {saldoOculto.has(conta.id_conta) ? (
-                    <EyeOff className="w-4 h-4 text-gray-400" />
+                    <EyeOff className="w-4 h-4 text-gray-500" />
                   ) : (
                     <Eye className="w-4 h-4 text-emerald-500" />
                   )}
@@ -149,9 +214,9 @@ export default function ContasPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-400">Saldo Atual</p>
-                <p className="text-2xl font-bold text-gray-50">
+                <p className="text-2xl font-bold text-gray-50 tracking-wider">
                   {saldoOculto.has(conta.id_conta)
-                    ? '••••••'
+                    ? '• • • • • •'
                     : formatCurrency(parseFloat(String(conta.saldo_atual || conta.saldo_inicial)))}
                 </p>
               </div>
@@ -183,7 +248,10 @@ export default function ContasPage() {
         <Card className="bg-[#12161f] border-[#222834]">
           <CardContent className="text-center py-12">
             <p className="text-gray-500 text-lg">Nenhuma conta cadastrada</p>
-            <Button className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold" onClick={() => { resetForm(); setShowModal(true) }}>
+            <Button
+              className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold"
+              onClick={() => { resetForm(); setShowModal(true) }}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Criar primeira conta
             </Button>
@@ -191,12 +259,14 @@ export default function ContasPage() {
         </Card>
       )}
 
-      {/* Modal */}
+      {/* Modal Nova / Editar Conta */}
       {showModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
           <Card className="w-full max-w-md bg-[#12161f] border-[#222834] shadow-[0_0_40px_rgba(0,0,0,0.5)] my-8">
             <CardHeader className="border-b border-[#222834] bg-[#151a22]">
-              <CardTitle className="text-gray-100">{editingConta ? 'Editar Conta' : 'Nova Conta'}</CardTitle>
+              <CardTitle className="text-gray-100">
+                {editingConta ? 'Editar Conta' : 'Nova Conta'}
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -206,9 +276,11 @@ export default function ContasPage() {
                     value={formData.nome}
                     onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                     required
+                    placeholder="Ex: Nubank, Itaú..."
                     className="mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
                   />
                 </div>
+
                 <div>
                   <label className="text-sm font-medium text-gray-300">Tipo</label>
                   <select
@@ -222,32 +294,43 @@ export default function ContasPage() {
                     <option value="Outro">Outro</option>
                   </select>
                 </div>
+
                 <div>
                   <label className="text-sm font-medium text-gray-300">Saldo Inicial</label>
                   <Input
                     type="number"
                     step="0.01"
+                    min="0"
                     value={formData.saldo_inicial}
                     onChange={(e) => setFormData({ ...formData, saldo_inicial: e.target.value })}
                     required
+                    placeholder="0,00"
                     className="mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
                   />
                 </div>
+
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Cor</label>
-                  <Input
-                    type="color"
+                  <label className="text-sm font-medium text-gray-300">Cor da Conta</label>
+                  <ColorPicker
                     value={formData.cor}
-                    onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
-                    className="mt-1 border-[#2a3140] bg-[#1a202c] h-11 p-1 w-full"
+                    onChange={(cor) => setFormData({ ...formData, cor })}
                   />
                 </div>
+
                 <div className="flex space-x-3 pt-6 border-t border-[#222834]">
-                  <Button type="button" variant="outline" className="flex-1 border-[#3e485e] hover:bg-[#1a202c] text-gray-300" onClick={() => setShowModal(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1 border-[#3e485e] hover:bg-[#1a202c] text-gray-300"
+                    onClick={() => setShowModal(false)}
+                  >
                     Cancelar
                   </Button>
-                  <Button type="submit" className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold">
-                    {editingConta ? 'Salvar' : 'Criar'}
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold"
+                  >
+                    {editingConta ? 'Salvar Alterações' : 'Criar Conta'}
                   </Button>
                 </div>
               </form>
