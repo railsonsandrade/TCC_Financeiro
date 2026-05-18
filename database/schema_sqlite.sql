@@ -245,6 +245,23 @@ CREATE TABLE dashboard_widget (
 CREATE INDEX idx_dashboard_widget_usuario ON dashboard_widget(id_usuario);
 
 -- =============================================
+-- TABELA: TELEGRAM_VINCULOS
+-- Vincula um chat_id do Telegram a um usuário do sistema
+-- =============================================
+CREATE TABLE IF NOT EXISTS telegram_vinculos (
+    id_vinculo INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_usuario INTEGER NOT NULL,
+    telegram_chat_id INTEGER NOT NULL UNIQUE,
+    telegram_username VARCHAR(100),
+    codigo_vinculo VARCHAR(10),        -- Código temporário gerado pelo app web
+    ativo BOOLEAN NOT NULL DEFAULT 1,
+    data_vinculo DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_telegram_chat_id ON telegram_vinculos(telegram_chat_id);
+
+-- =============================================
 -- FIM DO SCHEMA
 -- =============================================
-

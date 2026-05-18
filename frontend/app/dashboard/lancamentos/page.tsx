@@ -51,13 +51,15 @@ export default function LancamentosPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const data = {
+      // Converte strings do formulário para os tipos numéricos esperados pela API
+      const data: Partial<Lancamento> = {
         ...formData,
         id_conta: parseInt(formData.id_conta),
         id_categoria: parseInt(formData.id_categoria),
-        origem: 'Manual' as const
+        valor: parseFloat(formData.valor) || 0,
+        origem: 'Manual',
       }
-      
+
       if (editingLancamento) {
         await lancamentosAPI.atualizar(editingLancamento.id_lancamento, data)
       } else {
@@ -102,7 +104,7 @@ export default function LancamentosPage() {
       tipo: lancamento.tipo,
       valor: String(lancamento.valor),
       data: lancamento.data,
-      descricao: lancamento.descricao,
+      descricao: lancamento.descricao || '',  // fallback: descricao pode ser null/undefined
       pago: lancamento.pago
     })
     setShowModal(true)

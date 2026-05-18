@@ -3,7 +3,7 @@ API - Camada de rotas e endpoints
 """
 
 from fastapi import APIRouter
-from app.api.routes import auth, contas, categorias, lancamentos, metas, importacao, copilot, webhook, dashboard
+from app.api.routes import auth, contas, categorias, lancamentos, metas, importacao, copilot, webhook, dashboard, telegram
 
 
 # Router principal da API
@@ -17,7 +17,8 @@ api_router.include_router(lancamentos.router)
 api_router.include_router(metas.router)
 api_router.include_router(importacao.router)
 api_router.include_router(copilot.router)
-api_router.include_router(webhook.router)
+api_router.include_router(webhook.router)    # Mantido para retrocompatibilidade
+api_router.include_router(telegram.router)   # Novo: bot Telegram nativo
 api_router.include_router(dashboard.router)
 
 

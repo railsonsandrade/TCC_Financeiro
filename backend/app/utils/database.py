@@ -16,13 +16,27 @@ class DatabaseConnection:
         self._connection: Optional[sqlite3.Connection] = None
 
     def connect(self) -> sqlite3.Connection:
-        """Estabelece conexão com o banco de dados"""
+        """Estabelece conexão com o banco de dados com pragmas de performance"""
         try:
-            self._connection = sqlite3.connect(self.db_path)
-            self._connection.row_factory = sqlite3.Row  # Permite acessar colunas por nome
+            self._connection = sqlite3.connect(
+                self.db_path,
+                timeout=30.0,           # Aguarda até 30s antes de lançar "database is locked"
+                check_same_thread=False  # Permite uso em contextos multi-thread (FastAPI)
+            )
+            self._connection.row_factory = sqlite3.Row  # Acesso por nome de coluna
+
+            # ─── Pragmas de Performance e Integridade ─────────────────────
+            self._connection.execute("PRAGMA journal_mode=WAL;")       # Leitura e escrita simultâneas
+            self._connection.execute("PRAGMA synchronous=NORMAL;")     # Reduz fsync agressivo (mais rápido)
+            self._connection.execute("PRAGMA foreign_keys=ON;")        # Garante integridade referencial
+            self._connection.execute("PRAGMA cache_size=-64000;")      # Cache de 64MB em memória
+            self._connection.execute("PRAGMA temp_store=MEMORY;")      # Armazena tabelas temporárias em RAM
+            # ───────────────────────────────────────────────────────────────
+
             return self._connection
         except sqlite3.Error as e:
             raise Exception(f"Erro ao conectar ao banco de dados: {str(e)}")
+
     
     def disconnect(self):
         """Fecha a conexão com o banco de dados"""

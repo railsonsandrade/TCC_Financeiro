@@ -39,10 +39,15 @@ export default function ContasPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      // Converte saldo_inicial de string (input HTML) para number esperado pela API
+      const payload: Partial<Conta> = {
+        ...formData,
+        saldo_inicial: parseFloat(formData.saldo_inicial) || 0,
+      }
       if (editingConta) {
-        await contasAPI.atualizar(editingConta.id_conta, formData)
+        await contasAPI.atualizar(editingConta.id_conta, payload)
       } else {
-        await contasAPI.criar(formData)
+        await contasAPI.criar(payload)
       }
       setShowModal(false)
       resetForm()

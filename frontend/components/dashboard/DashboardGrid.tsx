@@ -15,7 +15,10 @@ import { WidgetDef, WidgetConfig } from '@/lib/dashboardHelpers'
 import { Conta, Meta, GastosPorCategoria, EvolucaoSaldo } from '@/lib/api'
 
 // Import default GridLayout dynamically to guarantee client-side only and bypass ESM/CJS issues.
-const GridLayout = dynamic(() => import('react-grid-layout'), { ssr: false })
+// Casting as `any` is the recommended workaround when dynamic() loses prop types for complex components.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const GridLayout = dynamic(() => import('react-grid-layout'), { ssr: false }) as any
+
 
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'

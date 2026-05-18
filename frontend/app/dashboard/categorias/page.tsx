@@ -72,7 +72,8 @@ export default function CategoriasPage() {
     setFormData({
       nome: categoria.nome,
       tipo: categoria.tipo,
-      grupo_50_30_20: categoria.grupo_50_30_20 ?? undefined,
+      // grupo_50_30_20 pode vir null do banco (categorias de Receita); convertemos para undefined
+      grupo_50_30_20: (categoria.grupo_50_30_20 ?? undefined) as 'Essencial' | 'Desejável' | 'Poupança' | undefined,
       cor: categoria.cor || '#3B82F6'
     })
     setShowModal(true)

@@ -37,6 +37,14 @@ class Settings(BaseSettings):
     # AI Copilot (Google Gemini)
     GEMINI_API_KEY: str = ""
     
+    # AI Copilot (Groq — Principal, usa Llama 3)
+    GROQ_API_KEY: str = ""
+    
+    # Telegram Bot (integração de chatbot)
+    TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_WEBHOOK_SECRET: str = ""  # Token secreto para validar updates do Telegram
+
+    
     class Config:
         env_file = ".env"
         case_sensitive = True

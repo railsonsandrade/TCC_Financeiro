@@ -19,6 +19,9 @@ python-multipart>=0.0.20
 # Environment Variables
 python-dotenv>=1.0.1
 
+# HTTP Client async (usado pelo Telegram bot para enviar mensagens)
+httpx>=0.28.0
+
 # Testing
 pytest>=8.3.0
 pytest-asyncio>=0.24.0
@@ -36,3 +39,5 @@ python-dateutil>=2.9.0
 # AI Copilot (Google Gemini)
 google-generativeai>=0.8.0
 
+# Requests sync (Groq API na PatarIA)
+requests>=2.31.0

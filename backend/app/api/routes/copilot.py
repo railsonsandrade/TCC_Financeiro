@@ -179,7 +179,7 @@ async def call_ai_api(messages: list, context: str) -> str:
     import json
     
     # ─── TENTATIVA 1: GROQ (Principal) ───────────────────────────────────
-    groq_api_key = getattr(settings, 'GROQ_API_KEY', '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')
+    groq_api_key = getattr(settings, 'GROQ_API_KEY', '').strip()
     
     if groq_api_key:
         try:
@@ -222,9 +222,8 @@ async def call_ai_api(messages: list, context: str) -> str:
         import google.generativeai as genai
 
         primary_key = getattr(settings, 'GEMINI_API_KEY', '').strip()
-        fallback_key = 'AIzaSyDrQB_ymBSkDtf7yxFzTBrW8RYSoFVJ_XY'
         
-        api_keys = [k for k in [primary_key, fallback_key] if k]
+        api_keys = [k for k in [primary_key] if k]
         
         if not api_keys:
             return "⚠️ As chaves de API não estão configuradas."
