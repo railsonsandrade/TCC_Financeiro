@@ -124,20 +124,37 @@ export default function DashboardGrid({
   }
 
   return (
-    <div ref={containerRef} className={editMode ? 'dashboard-edit-mode' : ''}>
+    <div ref={containerRef} className={editMode ? 'dashboard-edit-mode' : 'dashboard-view-mode'}>
       <style>{`
+        /* Modo de visualização: cursor normal, sem hover */
+        .dashboard-view-mode .react-grid-item {
+          cursor: default !important;
+        }
+        .dashboard-view-mode .react-grid-item * {
+          cursor: default !important;
+        }
+
+        /* Modo de edição: feedback visual */
         .dashboard-edit-mode .react-grid-item {
           transition: box-shadow 0.2s;
+          cursor: grab;
         }
         .dashboard-edit-mode .react-grid-item:hover {
           box-shadow: 0 0 0 2px #3b82f6;
           border-radius: 16px;
+        }
+        .dashboard-edit-mode .react-grid-item:active {
+          cursor: grabbing;
         }
         .react-grid-item.react-grid-placeholder {
           background: rgba(59, 130, 246, 0.15) !important;
           border: 2px dashed rgba(59, 130, 246, 0.5) !important;
           border-radius: 16px !important;
           opacity: 1 !important;
+        }
+        /* Handle de resize: só visível no modo de edição */
+        .dashboard-view-mode .react-resizable-handle {
+          display: none !important;
         }
         .react-resizable-handle {
           bottom: 6px !important;
@@ -162,11 +179,14 @@ export default function DashboardGrid({
         isDraggable={editMode}
         isResizable={editMode}
         onLayoutChange={(newLayout: any) => {
-          // Safeguard: Ensure valid numbers are passed up
+          // Somente propaga a mudança de layout quando estiver no modo de edição.
+          // Fora do modo de edição, a lib pode reorganizar internamente — ignoramos para
+          // não sobrescrever o layout salvo no banco quando o usuário troca de aba.
+          if (!editMode) return
           const cleanLayout = newLayout.map((item: any) => ({
              ...item,
              x: Number.isFinite(item.x) ? item.x : 0,
-             y: Number.isFinite(item.y) ? item.y : 999, // Infinity becomes 999
+             y: Number.isFinite(item.y) ? item.y : 999,
              w: Number.isFinite(item.w) ? item.w : 6,
              h: Number.isFinite(item.h) ? item.h : 4,
           }))
@@ -190,7 +210,11 @@ export default function DashboardGrid({
           }
           return (
             <div key={widget.id_widget} data-grid={fallbackGrid} className="relative">
-              <div className="widget-drag-handle absolute inset-0 z-0 pointer-events-none" />
+              {/* drag-handle: pointer-events ativos apenas no modo de edição */}
+              <div
+                className="widget-drag-handle absolute inset-0 z-0"
+                style={{ pointerEvents: editMode ? 'auto' : 'none' }}
+              />
               <WidgetContainer
                 id={widget.id_widget}
                 titulo={widget.titulo || widget.tipo}
