@@ -4,14 +4,15 @@ Carrega variáveis de ambiente e define configurações globais
 """
 
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Optional
 from pathlib import Path
 
 
 class Settings(BaseSettings):
     """Configurações da aplicação"""
     
-    # Database - SQLite
+    # Database - SQLite / PostgreSQL
+    DATABASE_URL: Optional[str] = None
     DB_PATH: str = "database/tcc_financeira.db"
     
     # Security
