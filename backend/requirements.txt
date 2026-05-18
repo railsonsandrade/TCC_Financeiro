@@ -10,6 +10,7 @@ email-validator>=2.0.0
 # Database
 # pyodbc>=5.2.0  # SQL Server (desabilitado)
 # SQLite já vem incluído no Python - não precisa instalar
+psycopg2-binary>=2.9.9
 
 # Security
 bcrypt>=4.2.0

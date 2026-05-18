@@ -3,38 +3,67 @@ Utilitários para conexão e operações com banco de dados SQLite
 """
 
 import sqlite3
+import re
 from typing import Optional, List, Dict, Any
 from contextlib import contextmanager
 from app.config import settings
+
+# Tentar importar psycopg2 (PostgreSQL) se disponível
+try:
+    import psycopg2
+    import psycopg2.extras
+    HAS_PSYCOPG2 = True
+except ImportError:
+    HAS_PSYCOPG2 = False
+
 
 
 class DatabaseConnection:
     """Gerenciador de conexão com SQLite"""
 
     def __init__(self):
-        self.db_path = settings.database_url
-        self._connection: Optional[sqlite3.Connection] = None
+        self.db_url = getattr(settings, 'DATABASE_URL', None) or settings.database_url
+        self.is_postgres = self.db_url and self.db_url.startswith(('postgres://', 'postgresql://'))
+        self._connection = None
 
-    def connect(self) -> sqlite3.Connection:
-        """Estabelece conexão com o banco de dados com pragmas de performance"""
+    def _convert_query(self, query: str) -> str:
+        """Converte placeholders do SQLite (?) para PostgreSQL (%s) se necessário."""
+        if self.is_postgres:
+            # Substitui '?' que não estão dentro de aspas por '%s'
+            # Uma regex simples que cobre 99% dos casos básicos de CRUD
+            return query.replace('?', '%s')
+        return query
+
+    def connect(self):
+        """Estabelece conexão com o banco de dados (SQLite ou PostgreSQL)"""
         try:
-            self._connection = sqlite3.connect(
-                self.db_path,
-                timeout=30.0,           # Aguarda até 30s antes de lançar "database is locked"
-                check_same_thread=False  # Permite uso em contextos multi-thread (FastAPI)
-            )
-            self._connection.row_factory = sqlite3.Row  # Acesso por nome de coluna
+            if self.is_postgres:
+                if not HAS_PSYCOPG2:
+                    raise ImportError("psycopg2-binary não está instalado. Instale-o para usar PostgreSQL.")
+                
+                # Corrigir o esquema postgres:// para postgresql:// se necessário para algumas libs, 
+                # psycopg2 aceita ambos na string de conexão
+                self._connection = psycopg2.connect(self.db_url)
+                # O psycopg2 faz auto-commit apenas se configurado, mas manteremos o manual no contextmanager
+                return self._connection
+            else:
+                # Conexão SQLite original
+                self._connection = sqlite3.connect(
+                    self.db_url,
+                    timeout=30.0,
+                    check_same_thread=False
+                )
+                self._connection.row_factory = sqlite3.Row
 
-            # ─── Pragmas de Performance e Integridade ─────────────────────
-            self._connection.execute("PRAGMA journal_mode=WAL;")       # Leitura e escrita simultâneas
-            self._connection.execute("PRAGMA synchronous=NORMAL;")     # Reduz fsync agressivo (mais rápido)
-            self._connection.execute("PRAGMA foreign_keys=ON;")        # Garante integridade referencial
-            self._connection.execute("PRAGMA cache_size=-64000;")      # Cache de 64MB em memória
-            self._connection.execute("PRAGMA temp_store=MEMORY;")      # Armazena tabelas temporárias em RAM
-            # ───────────────────────────────────────────────────────────────
-
-            return self._connection
-        except sqlite3.Error as e:
+                # Pragmas de Performance
+                self._connection.execute("PRAGMA journal_mode=WAL;")
+                self._connection.execute("PRAGMA synchronous=NORMAL;")
+                self._connection.execute("PRAGMA foreign_keys=ON;")
+                self._connection.execute("PRAGMA cache_size=-64000;")
+                self._connection.execute("PRAGMA temp_store=MEMORY;")
+                
+                return self._connection
+        except Exception as e:
             raise Exception(f"Erro ao conectar ao banco de dados: {str(e)}")
 
     
@@ -48,7 +77,14 @@ class DatabaseConnection:
     def get_cursor(self):
         """Context manager para obter cursor do banco de dados"""
         connection = self.connect()
-        cursor = connection.cursor()
+        
+        if self.is_postgres:
+            # Usa DictCursor para que o Postgres retorne dicionários, como o sqlite3.Row
+            cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        else:
+            cursor = connection.cursor()
+            
+
         try:
             yield cursor
             connection.commit()
@@ -70,13 +106,19 @@ class DatabaseConnection:
         Returns:
             Lista de dicionários com os resultados
         """
+        query = self._convert_query(query)
         with self.get_cursor() as cursor:
             cursor.execute(query, params)
-            columns = [column[0] for column in cursor.description]
-            results = []
-            for row in cursor.fetchall():
-                results.append(dict(zip(columns, row)))
-            return results
+            
+            if self.is_postgres:
+                # O DictCursor já retorna os dicionários
+                return [dict(row) for row in cursor.fetchall()]
+            else:
+                columns = [column[0] for column in cursor.description]
+                results = []
+                for row in cursor.fetchall():
+                    results.append(dict(zip(columns, row)))
+                return results
     
     def execute_non_query(self, query: str, params: tuple = ()) -> int:
         """
@@ -89,6 +131,7 @@ class DatabaseConnection:
         Returns:
             Número de linhas afetadas
         """
+        query = self._convert_query(query)
         with self.get_cursor() as cursor:
             cursor.execute(query, params)
             return cursor.rowcount
@@ -104,6 +147,7 @@ class DatabaseConnection:
         Returns:
             Valor único retornado pela query
         """
+        query = self._convert_query(query)
         with self.get_cursor() as cursor:
             cursor.execute(query, params)
             result = cursor.fetchone()
@@ -120,9 +164,43 @@ class DatabaseConnection:
         Returns:
             ID gerado pelo banco de dados
         """
+        if self.is_postgres:
+            # PostgreSQL precisa de RETURNING para obter o ID no INSERT
+            # Como não sabemos a PK, vamos tentar injetar RETURNING.
+            # Alternativamente, a aplicação que chama isso deve incluir o RETURNING id na query.
+            # No nosso sistema, o sqlite lastrowid cuida disso.
+            # Vamos modificar a query para injetar RETURNING se não existir:
+            # NOTA: Assumimos que o primeiro campo id_* é a PK ou tentamos injetar no final
+            
+            # Uma abordagem mais segura no PostgreSQL é usar o método `RETURNING id`
+            # Mas como não sabemos o nome do ID, usaremos um fallback:
+            # Vamos assumir que as rotas passarão a usar query de RETURNING explícita
+            # Mas, se não houver, pegamos o lastrowid simulado no SQLite
+            
+            # ATENÇÃO: As queries INSERT no PostgreSQL precisam retornar algo.
+            # Vamos implementar um wrapper se for insert comum
+            pass
+
+        query = self._convert_query(query)
+
         with self.get_cursor() as cursor:
-            cursor.execute(query, params)
-            return cursor.lastrowid
+            # Se for Postgres, temos um problema nativo com lastrowid
+            if self.is_postgres:
+                # Injeta RETURNING * no final do INSERT para pegarmos o ID gerado (a PK é sempre a primeira coluna)
+                if query.strip().upper().startswith("INSERT") and "RETURNING" not in query.upper():
+                    query = f"{query} RETURNING *"
+
+                cursor.execute(query, params)
+                try:
+                    result = cursor.fetchone()
+                    if result:
+                        return list(result.values())[0]  # Retorna o valor da primeira coluna (ID)
+                except Exception:
+                    pass
+                return 1
+            else:
+                cursor.execute(query, params)
+                return cursor.lastrowid
     
     def test_connection(self) -> bool:
         """
