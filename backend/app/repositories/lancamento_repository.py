@@ -297,7 +297,7 @@ class LancamentoRepository:
             params.append(tipo)
 
         if apenas_pagos:
-            conditions.append("pago = 1")
+            conditions.append("pago = TRUE")
 
         where_clause = " AND ".join(conditions)
 
