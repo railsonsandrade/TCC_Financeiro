@@ -83,9 +83,10 @@ export default function DashboardGrid({
       w: typeof w.w === 'number' ? w.w : 6,
       h: typeof w.h === 'number' ? w.h : 4,
       minW: 2,
-      minH: 2
+      minH: 2,
+      static: !editMode // Garante a trava total fora do modo de edição
     }))
-  }, [widgets])
+  }, [widgets, editMode])
 
   const renderWidgetContent = (widget: WidgetDef) => {
     switch (widget.tipo) {
@@ -210,11 +211,6 @@ export default function DashboardGrid({
           }
           return (
             <div key={widget.id_widget} data-grid={fallbackGrid} className="relative">
-              {/* drag-handle: pointer-events ativos apenas no modo de edição */}
-              <div
-                className="widget-drag-handle absolute inset-0 z-0"
-                style={{ pointerEvents: editMode ? 'auto' : 'none' }}
-              />
               <WidgetContainer
                 id={widget.id_widget}
                 titulo={widget.titulo || widget.tipo}

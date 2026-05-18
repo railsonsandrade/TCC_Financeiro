@@ -20,8 +20,8 @@ export default function WidgetContainer({
 }: WidgetContainerProps) {
   return (
     <div className="relative h-full flex flex-col bg-[#12161f] border border-[#222834] rounded-2xl overflow-hidden shadow-lg group">
-      {/* Header */}
-      <div className={`flex items-center justify-between px-4 py-3 border-b border-[#222834] bg-[#151a22] flex-shrink-0 ${editMode ? 'cursor-grab active:cursor-grabbing' : ''}`}>
+      {/* Header (Área de Arraste) */}
+      <div className={`flex items-center justify-between px-4 py-3 border-b border-[#222834] bg-[#151a22] flex-shrink-0 ${editMode ? 'widget-drag-handle cursor-grab active:cursor-grabbing' : ''}`}>
         <div className="flex items-center gap-2 min-w-0">
           {editMode && (
             <GripVertical className="w-4 h-4 text-gray-600 flex-shrink-0" />
