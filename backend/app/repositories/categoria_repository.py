@@ -63,7 +63,7 @@ class CategoriaRepository:
             query = """
                 SELECT id_categoria, id_usuario, nome, tipo, grupo_50_30_20, cor, ativa
                 FROM categoria
-                WHERE id_usuario = ? AND tipo = ? AND ativa = 1
+                WHERE id_usuario = ? AND tipo = ? AND ativa = TRUE
                 ORDER BY nome
             """
             params = (id_usuario, tipo)
@@ -79,7 +79,7 @@ class CategoriaRepository:
             query = """
                 SELECT id_categoria, id_usuario, nome, tipo, grupo_50_30_20, cor, ativa
                 FROM categoria
-                WHERE id_usuario = ? AND ativa = 1
+                WHERE id_usuario = ? AND ativa = TRUE
                 ORDER BY nome
             """
             params = (id_usuario,)
@@ -113,7 +113,7 @@ class CategoriaRepository:
         query = """
             SELECT id_categoria, id_usuario, nome, tipo, grupo_50_30_20, cor, ativa
             FROM categoria
-            WHERE id_usuario = ? AND grupo_50_30_20 = ? AND ativa = 1
+            WHERE id_usuario = ? AND grupo_50_30_20 = ? AND ativa = TRUE
             ORDER BY nome
         """
         

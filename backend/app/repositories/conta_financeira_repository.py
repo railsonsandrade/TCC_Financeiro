@@ -23,8 +23,8 @@ class ContaFinanceiraRepository:
     def create(self, id_usuario: int, conta: ContaFinanceiraCreate) -> ContaFinanceiraInDB:
         """Cria uma nova conta financeira"""
         query = """
-            INSERT INTO conta_financeira (id_usuario, nome, tipo, saldo_inicial, data_criacao, ativa)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO conta_financeira (id_usuario, nome, tipo, saldo_inicial, data_criacao, ativa, cor)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """
         
         params = (
@@ -33,7 +33,8 @@ class ContaFinanceiraRepository:
             conta.tipo,
             float(conta.saldo_inicial),
             datetime.now(),
-            True
+            True,
+            conta.cor or '#3B82F6'
         )
         
         id_conta = self.db.execute_insert_with_identity(query, params)
@@ -43,7 +44,7 @@ class ContaFinanceiraRepository:
     def get_by_id(self, id_conta: int) -> Optional[ContaFinanceiraInDB]:
         """Busca uma conta por ID"""
         query = """
-            SELECT id_conta, id_usuario, nome, tipo, saldo_inicial, data_criacao, ativa
+            SELECT id_conta, id_usuario, nome, tipo, saldo_inicial, data_criacao, ativa, cor
             FROM conta_financeira
             WHERE id_conta = ?
         """
@@ -59,7 +60,8 @@ class ContaFinanceiraRepository:
                 tipo=row['tipo'],
                 saldo_inicial=Decimal(str(row['saldo_inicial'])),
                 data_criacao=row['data_criacao'],
-                ativa=bool(row['ativa'])
+                ativa=bool(row['ativa']),
+                cor=row.get('cor') or '#3B82F6'
             )
         
         return None
@@ -68,14 +70,14 @@ class ContaFinanceiraRepository:
         """Lista todas as contas de um usuário"""
         if apenas_ativas:
             query = """
-                SELECT id_conta, id_usuario, nome, tipo, saldo_inicial, data_criacao, ativa
+                SELECT id_conta, id_usuario, nome, tipo, saldo_inicial, data_criacao, ativa, cor
                 FROM conta_financeira
-                WHERE id_usuario = ? AND ativa = 1
+                WHERE id_usuario = ? AND ativa = TRUE
                 ORDER BY nome
             """
         else:
             query = """
-                SELECT id_conta, id_usuario, nome, tipo, saldo_inicial, data_criacao, ativa
+                SELECT id_conta, id_usuario, nome, tipo, saldo_inicial, data_criacao, ativa, cor
                 FROM conta_financeira
                 WHERE id_usuario = ?
                 ORDER BY nome
@@ -92,7 +94,8 @@ class ContaFinanceiraRepository:
                 tipo=row['tipo'],
                 saldo_inicial=Decimal(str(row['saldo_inicial'])),
                 data_criacao=row['data_criacao'],
-                ativa=bool(row['ativa'])
+                ativa=bool(row['ativa']),
+                cor=row.get('cor') or '#3B82F6'
             ))
         
         return contas
@@ -174,6 +177,10 @@ class ContaFinanceiraRepository:
         if conta.ativa is not None:
             update_fields.append("ativa = ?")
             params.append(conta.ativa)
+
+        if conta.cor is not None:
+            update_fields.append("cor = ?")
+            params.append(conta.cor)
 
         if not update_fields:
             return self.get_by_id(id_conta)

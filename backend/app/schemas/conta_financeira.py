@@ -13,6 +13,7 @@ class ContaFinanceiraBase(BaseModel):
     nome: str = Field(..., min_length=1, max_length=100, description="Nome da conta")
     tipo: Literal["Conta Corrente", "Poupança", "Carteira", "Outro"] = Field(..., description="Tipo da conta")
     saldo_inicial: Decimal = Field(default=0.00, ge=0, description="Saldo inicial da conta")
+    cor: Optional[str] = Field(default='#3B82F6', max_length=7, description="Cor hexadecimal da conta")
 
 
 class ContaFinanceiraCreate(ContaFinanceiraBase):
@@ -26,6 +27,7 @@ class ContaFinanceiraUpdate(BaseModel):
     tipo: Optional[Literal["Conta Corrente", "Poupança", "Carteira", "Outro"]] = None
     saldo_inicial: Optional[Decimal] = Field(None, ge=0)
     ativa: Optional[bool] = None
+    cor: Optional[str] = Field(None, max_length=7)
 
 
 class ContaFinanceiraInDB(ContaFinanceiraBase):
@@ -34,6 +36,7 @@ class ContaFinanceiraInDB(ContaFinanceiraBase):
     id_usuario: int
     data_criacao: datetime
     ativa: bool = True
+    cor: Optional[str] = '#3B82F6'
     
     model_config = ConfigDict(from_attributes=True)
 

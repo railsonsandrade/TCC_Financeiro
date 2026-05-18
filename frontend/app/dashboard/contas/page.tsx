@@ -13,12 +13,21 @@ export default function ContasPage() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingConta, setEditingConta] = useState<Conta | null>(null)
+  const [saldoOculto, setSaldoOculto] = useState<Set<number>>(new Set())
   const [formData, setFormData] = useState({
     nome: '',
     tipo: 'Conta Corrente' as 'Conta Corrente' | 'Poupança' | 'Carteira' | 'Outro',
     saldo_inicial: '',
     cor: '#3B82F6'
   })
+
+  const toggleSaldo = (id: number) => {
+    setSaldoOculto(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   useEffect(() => {
     loadContas()
@@ -39,7 +48,6 @@ export default function ContasPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      // Converte saldo_inicial de string (input HTML) para number esperado pela API
       const payload: Partial<Conta> = {
         ...formData,
         saldo_inicial: parseFloat(formData.saldo_inicial) || 0,
@@ -115,17 +123,23 @@ export default function ContasPage() {
             <CardHeader className="pb-3 border-b border-[#222834] bg-[#151a22]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-4 h-4 rounded-full shadow-md" 
+                  <div
+                    className="w-4 h-4 rounded-full shadow-md"
                     style={{ backgroundColor: conta.cor || '#3b82f6' }}
                   />
                   <CardTitle className="text-lg text-gray-100">{conta.nome}</CardTitle>
                 </div>
-                {conta.ativa ? (
-                  <Eye className="w-4 h-4 text-emerald-500" />
-                ) : (
-                  <EyeOff className="w-4 h-4 text-gray-500" />
-                )}
+                <button
+                  onClick={() => toggleSaldo(conta.id_conta)}
+                  className="p-1 rounded-lg hover:bg-[#1a202c] transition-colors"
+                  title={saldoOculto.has(conta.id_conta) ? 'Mostrar saldo' : 'Ocultar saldo'}
+                >
+                  {saldoOculto.has(conta.id_conta) ? (
+                    <EyeOff className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <Eye className="w-4 h-4 text-emerald-500" />
+                  )}
+                </button>
               </div>
             </CardHeader>
             <CardContent className="space-y-4 pt-4">
@@ -136,21 +150,23 @@ export default function ContasPage() {
               <div>
                 <p className="text-sm text-gray-400">Saldo Atual</p>
                 <p className="text-2xl font-bold text-gray-50">
-                  {formatCurrency(parseFloat(String(conta.saldo_atual || conta.saldo_inicial)))}
+                  {saldoOculto.has(conta.id_conta)
+                    ? '••••••'
+                    : formatCurrency(parseFloat(String(conta.saldo_atual || conta.saldo_inicial)))}
                 </p>
               </div>
               <div className="flex space-x-2 pt-4 border-t border-[#222834]">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex-1 border-[#3e485e] text-gray-300 hover:bg-[#1a202c]"
                   onClick={() => handleEdit(conta)}
                 >
                   <Pencil className="w-3 h-3 mr-1" />
                   Editar
                 </Button>
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   size="sm"
                   onClick={() => handleDelete(conta.id_conta)}
                   className="bg-red-500/20 text-red-500 hover:bg-red-500/30 border border-red-500/20"
