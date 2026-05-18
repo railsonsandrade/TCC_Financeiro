@@ -33,14 +33,15 @@ export default function LancamentosPage() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [lancamentosRes, contasRes, categoriasRes] = await Promise.all([
+      const [lancamentosRes, contasRes, categoriasRes] = await Promise.allSettled([
         lancamentosAPI.listarComDetalhes(),
         contasAPI.listar(),
         categoriasAPI.listar()
       ])
-      setLancamentos(lancamentosRes.data)
-      setContas(contasRes.data)
-      setCategorias(categoriasRes.data)
+      
+      if (lancamentosRes.status === 'fulfilled') setLancamentos(lancamentosRes.value.data)
+      if (contasRes.status === 'fulfilled') setContas(contasRes.value.data)
+      if (categoriasRes.status === 'fulfilled') setCategorias(categoriasRes.value.data)
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
     } finally {

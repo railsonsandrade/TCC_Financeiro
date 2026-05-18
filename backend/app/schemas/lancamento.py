@@ -62,7 +62,7 @@ class LancamentoComDetalhes(LancamentoResponse):
     nome_conta: str
     tipo_conta: str
     nome_categoria: str
-    grupo_categoria: str
+    grupo_categoria: Optional[str] = None
     cor_categoria: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True)
