@@ -10,43 +10,32 @@ echo.
 echo Iniciando aplicacao...
 echo.
 
-REM Verificar se o banco de dados existe
-if not exist "database\tcc_financeira.db" (
-    echo [INFO] Banco de dados nao encontrado!
-    echo [INFO] Criando banco de dados...
-    cd database
-    sqlite3 tcc_financeira.db < schema_sqlite.sql
-    cd ..
-    echo [OK] Banco de dados criado!
+REM 1. Verificar se o .env existe no backend
+if not exist "backend\.env" (
+    echo [INFO] Arquivo backend\.env nao encontrado!
+    echo [INFO] Criando backend\.env a partir de .env.example...
+    copy "backend\.env.example" "backend\.env" >nul
+    echo [OK] Arquivo backend\.env criado!
     echo.
-    
-    REM Criar dados de teste
-    echo [INFO] Criando dados de teste...
-    call venv\Scripts\activate.bat
-    cd backend
-    python seed_test_data.py
-    cd ..
-    echo [OK] Dados de teste criados!
+) else (
+    echo [OK] Arquivo backend\.env encontrado!
     echo.
 )
 
-echo [OK] Banco de dados encontrado
-echo.
-
-REM Verificar se o ambiente virtual existe
+REM 2. Verificar se o ambiente virtual existe
 if not exist "venv\Scripts\python.exe" (
     echo [INFO] Ambiente virtual nao encontrado!
     echo [INFO] Criando ambiente virtual Python...
     python -m venv venv
     echo [OK] Ambiente virtual criado!
     echo.
+) else (
+    echo [OK] Ambiente virtual encontrado!
+    echo.
 )
 
-echo [OK] Ambiente virtual encontrado
-echo.
-
-REM Verificar dependencias do backend
-echo [INFO] Verificando dependencias do backend...
+REM 3. Verificar dependencias do backend
+echo [INFO] Verificando/Instalando dependencias do backend...
 call venv\Scripts\activate.bat
 cd backend
 pip install -q -r requirements.txt
@@ -54,7 +43,26 @@ cd ..
 echo [OK] Dependencias do backend OK
 echo.
 
-REM Verificar se node_modules existe
+REM 4. Verificar se o banco de dados existe
+if not exist "database\tcc_financeira.db" (
+    echo [INFO] Banco de dados nao encontrado!
+    echo [INFO] Criando banco de dados...
+    venv\Scripts\python.exe database\create_db.py
+    echo [OK] Banco de dados criado!
+    echo.
+    
+    REM Criar dados de teste
+    echo [INFO] Criando dados de teste e usuario demo...
+    venv\Scripts\python.exe backend\scripts\setup_demo_user.py
+    venv\Scripts\python.exe backend\scripts\create_demo_data.py
+    echo [OK] Dados de teste criados!
+    echo.
+) else (
+    echo [OK] Banco de dados encontrado!
+    echo.
+)
+
+REM 5. Verificar se node_modules existe
 if not exist "frontend\node_modules" (
     echo [INFO] Dependencias do frontend nao instaladas
     echo [INFO] Instalando dependencias do frontend...
@@ -63,10 +71,10 @@ if not exist "frontend\node_modules" (
     cd ..
     echo [OK] Dependencias instaladas!
     echo.
+) else (
+    echo [OK] Dependencias do frontend OK
+    echo.
 )
-
-echo [OK] Dependencias do frontend OK
-echo.
 
 echo ============================================================
 echo  INICIANDO SERVIDORES
@@ -105,8 +113,8 @@ echo    - Aguarde alguns segundos para os servidores iniciarem
 echo    - Duas janelas foram abertas (Backend e Frontend)
 echo    - Para parar: feche as janelas ou pressione Ctrl+C
 echo    - Credenciais de teste:
-echo      Email: teste@teste.com
-echo      Senha: 123456
+echo      Email: demo@nextwallet.com
+echo      Senha: demo123
 echo.
 echo ============================================================
 echo.
