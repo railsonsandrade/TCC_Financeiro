@@ -148,48 +148,51 @@ export default function LancamentosPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-50">Lançamentos</h1>
-          <p className="text-gray-400 mt-1">Registre suas receitas e despesas</p>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--foreground)' }}>Lançamentos</h1>
+          <p className="mt-1" style={{ color: 'var(--muted-foreground)' }}>Registre suas receitas e despesas</p>
         </div>
-        <Button onClick={() => { resetForm(); setShowModal(true) }} className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold">
-          <Plus className="w-4 h-4 mr-2" />
+        <button
+          onClick={() => { resetForm(); setShowModal(true) }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow-md text-black bg-yellow-500 hover:bg-yellow-400"
+        >
+          <Plus className="w-4 h-4" />
           Novo Lançamento
-        </Button>
+        </button>
       </div>
 
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-[#12161f] border-[#222834]">
+        <Card style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400">Total Receitas</p>
+                <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Total Receitas</p>
                 <p className="text-2xl font-bold text-[#10b981]">{formatCurrency(totais.receitas)}</p>
               </div>
-              <div className="p-2 bg-[#10b981]/10 rounded-lg border border-[#10b981]/20">
+              <div className="p-2 bg-[#10b981]/10 rounded-lg border border-[#10b981]/25">
                 <TrendingUp className="w-6 h-6 text-[#10b981]" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-[#12161f] border-[#222834]">
+        <Card style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400">Total Despesas</p>
+                <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Total Despesas</p>
                 <p className="text-2xl font-bold text-[#ef4444]">{formatCurrency(totais.despesas)}</p>
               </div>
-              <div className="p-2 bg-[#ef4444]/10 rounded-lg border border-[#ef4444]/20">
+              <div className="p-2 bg-[#ef4444]/10 rounded-lg border border-[#ef4444]/25">
                 <TrendingDown className="w-6 h-6 text-[#ef4444]" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-[#12161f] border-[#222834]">
+        <Card style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400">Saldo</p>
+                <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Saldo</p>
                 <p className={`text-2xl font-bold ${totais.receitas - totais.despesas >= 0 ? 'text-[#eab308]' : 'text-[#f97316]'}`}>
                   {formatCurrency(totais.receitas - totais.despesas)}
                 </p>
@@ -200,14 +203,14 @@ export default function LancamentosPage() {
       </div>
 
       {/* Lista de Lançamentos */}
-      <Card className="bg-[#12161f] border-[#222834]">
-        <CardHeader className="border-b border-[#222834] bg-[#151a22]">
-          <CardTitle className="text-gray-100">Histórico</CardTitle>
+      <Card style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+        <CardHeader style={{ borderBottom: '1px solid var(--border)', background: 'var(--muted)' }}>
+          <CardTitle style={{ color: 'var(--foreground)' }}>Histórico</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           {lancamentos.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500">Nenhum lançamento registrado</p>
+              <p style={{ color: 'var(--muted-foreground)' }}>Nenhum lançamento registrado</p>
               <Button className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-black px-6" onClick={() => { resetForm(); setShowModal(true) }}>
                 <Plus className="w-4 h-4 mr-2" />
                 Criar primeiro lançamento
@@ -218,7 +221,8 @@ export default function LancamentosPage() {
               {lancamentos.map((lancamento) => (
                 <div 
                   key={lancamento.id_lancamento}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#1a202c] rounded-xl border border-[#2a3140] hover:border-[#3e485e] transition-colors gap-4"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl transition-colors gap-4"
+                  style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
                 >
                   <div className="flex items-center space-x-4 flex-1">
                     <div className={`p-2 rounded-lg border ${lancamento.tipo === 'Receita' ? 'bg-[#10b981]/10 border-[#10b981]/20' : 'bg-[#ef4444]/10 border-[#ef4444]/20'}`}>
@@ -229,9 +233,9 @@ export default function LancamentosPage() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-gray-200">{lancamento.descricao}</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        <span className="text-gray-300">{lancamento.nome_categoria}</span> • {lancamento.nome_conta} • {formatDate(lancamento.data)}
+                      <p className="font-medium" style={{ color: 'var(--foreground)' }}>{lancamento.descricao}</p>
+                      <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
+                        <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{lancamento.nome_categoria}</span> • {lancamento.nome_conta} • {formatDate(lancamento.data)}
                       </p>
                     </div>
                     <div className="text-right hidden sm:block">
@@ -253,7 +257,7 @@ export default function LancamentosPage() {
                   </div>
                   
                   {/* Mobile Value Display */}
-                  <div className="flex justify-between items-center sm:hidden w-full border-t border-[#2a3140] pt-3 mt-1">
+                  <div className="flex justify-between items-center sm:hidden w-full pt-3 mt-1" style={{ borderTop: '1px solid var(--border)' }}>
                     <p className={`text-base font-bold ${lancamento.tipo === 'Receita' ? 'text-[#10b981]' : 'text-[#ef4444]'}`}>
                       {lancamento.tipo === 'Receita' ? '+' : '-'}{formatCurrency(parseFloat(String(lancamento.valor)))}
                     </p>
@@ -271,30 +275,33 @@ export default function LancamentosPage() {
                   </div>
 
                   <div className="flex space-x-2 sm:ml-4 justify-end">
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <button
                       onClick={() => handleTogglePago(lancamento)}
-                      className="border-[#3e485e] hover:bg-[#2a3140] text-gray-300"
+                      className="flex items-center justify-center p-2 rounded-lg text-xs font-medium transition-all"
+                      style={{ background: 'var(--card)', color: 'var(--muted-foreground)', border: '1px solid var(--border)' }}
+                      onMouseEnter={e => { e.currentTarget.style.color = 'var(--foreground)' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted-foreground)' }}
                     >
                       {lancamento.pago ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    </button>
+                    <button
                       onClick={() => handleEdit(lancamento)}
-                      className="border-[#3e485e] hover:bg-[#2a3140] text-gray-300"
+                      className="flex items-center justify-center p-2 rounded-lg text-xs font-medium transition-all"
+                      style={{ background: 'var(--card)', color: 'var(--muted-foreground)', border: '1px solid var(--border)' }}
+                      onMouseEnter={e => { e.currentTarget.style.color = 'var(--foreground)' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted-foreground)' }}
                     >
                       <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
+                    </button>
+                    <button
                       onClick={() => handleDelete(lancamento.id_lancamento)}
-                      className="bg-red-500/20 text-red-500 hover:bg-red-500/30 border border-red-500/20"
+                      className="flex items-center justify-center p-2 rounded-lg text-xs font-medium transition-all"
+                      style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)' }}
                     >
                       <Trash2 className="w-4 h-4" />
-                    </Button>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -306,16 +313,17 @@ export default function LancamentosPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <Card className="w-full max-w-md my-8 bg-[#12161f] border-[#222834] shadow-[0_0_40px_rgba(0,0,0,0.5)]">
-            <CardHeader className="border-b border-[#222834] bg-[#151a22]">
-              <CardTitle className="text-gray-100">{editingLancamento ? 'Editar Lançamento' : 'Novo Lançamento'}</CardTitle>
+          <Card className="w-full max-w-md my-8 overflow-hidden" style={{ background: 'var(--card)', border: '1px solid var(--border)', boxShadow: 'var(--glass-shadow)' }}>
+            <CardHeader style={{ borderBottom: '1px solid var(--border)', background: 'var(--muted)' }}>
+              <CardTitle style={{ color: 'var(--foreground)' }}>{editingLancamento ? 'Editar Lançamento' : 'Novo Lançamento'}</CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Tipo</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Tipo</label>
                   <select
-                    className="flex h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 py-1 text-sm text-gray-200 mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
+                    className="flex h-11 w-full rounded-md px-3 py-1 text-sm mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
+                    style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                     value={formData.tipo}
                     onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any, id_categoria: '' })}
                   >
@@ -324,9 +332,10 @@ export default function LancamentosPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Conta</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Conta</label>
                   <select
-                    className="flex h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 py-1 text-sm text-gray-200 mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
+                    className="flex h-11 w-full rounded-md px-3 py-1 text-sm mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
+                    style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                     value={formData.id_conta}
                     onChange={(e) => setFormData({ ...formData, id_conta: e.target.value })}
                     required
@@ -338,9 +347,10 @@ export default function LancamentosPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Categoria</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Categoria</label>
                   <select
-                    className="flex h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 py-1 text-sm text-gray-200 mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
+                    className="flex h-11 w-full rounded-md px-3 py-1 text-sm mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
+                    style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                     value={formData.id_categoria}
                     onChange={(e) => setFormData({ ...formData, id_categoria: e.target.value })}
                     required
@@ -352,54 +362,67 @@ export default function LancamentosPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Valor</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Valor</label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.valor}
                     onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
                     required
-                    className="h-11 mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
+                    className="h-11 mt-1"
+                    style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Data</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Data</label>
                   <Input
                     type="date"
                     value={formData.data}
                     onChange={(e) => setFormData({ ...formData, data: e.target.value })}
                     required
-                    className="h-11 mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500 [color-scheme:dark]"
+                    className="h-11 mt-1"
+                    style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Descrição</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Descrição</label>
                   <Input
                     value={formData.descricao}
                     onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                     required
-                    className="h-11 mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
+                    className="h-11 mt-1"
+                    style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                   />
                 </div>
                 <div className="flex items-center space-x-3 pt-2">
-                  <div className="flex items-center justify-center w-5 h-5 rounded border border-[#3e485e] bg-[#1a202c]">
+                  <div className="flex items-center justify-center w-5 h-5 rounded border animate-transition" style={{ borderColor: 'var(--border)', background: 'var(--muted)' }}>
                     <input
                       type="checkbox"
                       id="pago"
                       checked={formData.pago}
                       onChange={(e) => setFormData({ ...formData, pago: e.target.checked })}
-                      className="w-4 h-4 accent-yellow-500 rounded"
+                      className="w-4 h-4 accent-yellow-500 rounded cursor-pointer"
                     />
                   </div>
-                  <label htmlFor="pago" className="text-sm font-medium text-gray-300 cursor-pointer">Pago / Efetivado</label>
+                  <label htmlFor="pago" className="text-sm font-medium cursor-pointer" style={{ color: 'var(--foreground)' }}>Pago / Efetivado</label>
                 </div>
-                <div className="flex space-x-3 pt-4 border-t border-[#222834]">
-                  <Button type="button" variant="outline" className="flex-1 border-[#3e485e] text-gray-300 hover:bg-[#1a202c]" onClick={() => setShowModal(false)}>
+                <div className="flex space-x-3 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+                  <button
+                    type="button"
+                    className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all border"
+                    style={{ background: 'var(--muted)', color: 'var(--muted-foreground)', borderColor: 'var(--border)' }}
+                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--foreground)' }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted-foreground)' }}
+                    onClick={() => setShowModal(false)}
+                  >
                     Cancelar
-                  </Button>
-                  <Button type="submit" className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold">
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all text-black bg-yellow-500 hover:bg-yellow-400"
+                  >
                     {editingLancamento ? 'Salvar' : 'Criar Lançamento'}
-                  </Button>
+                  </button>
                 </div>
               </form>
             </CardContent>

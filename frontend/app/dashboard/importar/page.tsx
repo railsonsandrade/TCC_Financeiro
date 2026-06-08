@@ -189,13 +189,13 @@ export default function ImportarPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold text-gray-50 flex items-center gap-3">
+        <h1 className="text-3xl font-bold flex items-center gap-3" style={{ color: 'var(--foreground)' }}>
           <div className="p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.2)]">
             <Upload className="w-6 h-6 text-yellow-500" />
           </div>
           Importar Fatura
         </h1>
-        <p className="text-gray-400 mt-1">Importe suas faturas bancárias com categorização inteligente</p>
+        <p className="mt-1" style={{ color: 'var(--muted-foreground)' }}>Importe suas faturas bancárias com categorização inteligente</p>
       </div>
 
       {/* Steps indicator */}
@@ -206,12 +206,15 @@ export default function ImportarPage() {
           const isPast = stepOrder.indexOf(step) > stepOrder.indexOf(s.key)
           return (
             <div key={s.key} className="flex items-center gap-2">
-              {i > 0 && <ArrowRight className="w-4 h-4 text-gray-600" />}
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/30' :
-                isPast ? 'bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30' :
-                'bg-[#1a202c] text-gray-500 border border-[#2a3140]'
-              }`}>
+              {i > 0 && <ArrowRight className="w-4 h-4" style={{ color: 'var(--muted-foreground)' }} />}
+              <div
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+                style={
+                  isActive ? { background: 'rgba(234,179,8,0.1)', color: 'var(--primary)', border: '1px solid rgba(234,179,8,0.25)' } :
+                  isPast ? { background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.25)' } :
+                  { background: 'var(--muted)', color: 'var(--muted-foreground)', border: '1px solid var(--border)' }
+                }
+              >
                 <Icon className="w-4 h-4" />
                 {s.label}
               </div>
@@ -222,14 +225,14 @@ export default function ImportarPage() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-start gap-3 p-4 bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-xl text-sm text-[#ef4444]">
+        <div className="flex items-start gap-3 p-4 border rounded-xl text-sm" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
           <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
             <p className="font-medium">Erro</p>
-            <p className="mt-1 text-[#ef4444]/80">{error}</p>
+            <p className="mt-1 opacity-80">{error}</p>
           </div>
           <button onClick={() => setError(null)} className="ml-auto">
-            <X className="w-4 h-4 text-[#ef4444]/80 hover:text-[#ef4444]" />
+            <X className="w-4 h-4 opacity-80 hover:opacity-100" />
           </button>
         </div>
       )}
@@ -238,32 +241,35 @@ export default function ImportarPage() {
       {step === 'upload' && (
         <div className="space-y-6">
           <div
-            className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all cursor-pointer ${
+            className="border-2 border-dashed rounded-2xl p-12 text-center transition-all cursor-pointer"
+            style={
               dragActive
-                ? 'border-yellow-500 bg-yellow-500/10'
-                : 'border-[#2a3140] bg-[#12161f] hover:border-yellow-500/50 hover:bg-[#1a202c]'
-            }`}
+                ? { borderColor: 'var(--primary)', background: 'rgba(234,179,8,0.1)' }
+                : { borderColor: 'var(--border)', background: 'var(--card)' }
+            }
+            onMouseEnter={e => { if (!dragActive) { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'var(--muted)' } }}
+            onMouseLeave={e => { if (!dragActive) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--card)' } }}
             onDragEnter={handleDrag} onDragLeave={handleDrag}
             onDragOver={handleDrag} onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
           >
             <input ref={fileInputRef} type="file" accept=".csv,.ofx" onChange={handleFileSelect} className="hidden" />
             <div className="space-y-4">
-              <div className="mx-auto w-16 h-16 rounded-2xl bg-[#1a202c] border border-[#2a3140] flex items-center justify-center">
+              <div className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}>
                 <FileSpreadsheet className="w-8 h-8 text-yellow-500" />
               </div>
               <div>
-                <p className="text-lg font-semibold text-gray-200">Arraste o arquivo CSV aqui ou clique para selecionar</p>
-                <p className="text-sm text-gray-500 mt-1">Suporte: Nubank (.csv)</p>
+                <p className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Arraste o arquivo CSV aqui ou clique para selecionar</p>
+                <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>Suporte: Nubank (.csv)</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-4 bg-[#1a202c] border border-[#2a3140] rounded-xl text-sm">
+          <div className="flex items-start gap-3 p-4 rounded-xl text-sm" style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}>
             <Info className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
-            <div className="text-gray-300">
-              <p className="font-medium text-gray-200">Como exportar sua fatura do Nubank:</p>
-              <ol className="mt-2 space-y-1 list-decimal list-inside text-gray-400">
+            <div>
+              <p className="font-medium" style={{ color: 'var(--foreground)' }}>Como exportar sua fatura do Nubank:</p>
+              <ol className="mt-2 space-y-1 list-decimal list-inside text-xs" style={{ color: 'var(--muted-foreground)' }}>
                 <li>Abra o app do Nubank</li>
                 <li>Vá em Cartão de Crédito &gt; Faturas</li>
                 <li>Selecione a fatura desejada</li>
@@ -278,28 +284,35 @@ export default function ImportarPage() {
       {/* ─── Step 2: Configure ──────────────────────────────────────────── */}
       {step === 'configure' && file && (
         <div className="space-y-6">
-          <div className="flex items-center gap-4 p-4 bg-[#12161f] border border-[#222834] rounded-xl">
-            <div className="p-3 bg-[#10b981]/10 rounded-xl border border-[#10b981]/20">
+          <div className="flex items-center gap-4 p-4 rounded-xl" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+            <div className="p-3 bg-[#10b981]/10 rounded-xl border border-[#10b981]/25">
               <FileIcon className="w-6 h-6 text-[#10b981]" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-200">{file.name}</p>
-              <p className="text-sm text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+              <p className="font-semibold" style={{ color: 'var(--foreground)' }}>{file.name}</p>
+              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{(file.size / 1024).toFixed(1)} KB</p>
             </div>
-            <button onClick={resetState} className="p-2 hover:bg-[#1a202c] rounded-lg transition-colors border border-transparent hover:border-[#2a3140]">
-              <X className="w-4 h-4 text-gray-400" />
+            <button
+              onClick={resetState}
+              className="p-2 rounded-lg transition-colors border border-transparent"
+              style={{ color: 'var(--muted-foreground)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--muted)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent' }}
+            >
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="bg-[#12161f] border border-[#222834] rounded-xl p-6 space-y-4">
-            <h3 className="font-semibold text-gray-200 flex items-center gap-2">
+          <div className="rounded-xl p-6 space-y-4" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+            <h3 className="font-semibold flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
               <CreditCard className="w-5 h-5 text-yellow-500" />
               Selecione a conta destino
             </h3>
             <select
               value={selectedConta}
               onChange={(e) => setSelectedConta(e.target.value)}
-              className="w-full h-11 rounded-xl border border-[#2a3140] bg-[#1a202c] px-4 text-sm text-gray-200 focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+              className="w-full h-11 rounded-xl px-4 text-sm focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+              style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
             >
               <option value="">Selecione uma conta...</option>
               {contas.map((c) => (
@@ -309,11 +322,17 @@ export default function ImportarPage() {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" className="flex-1 border-[#3e485e] hover:bg-[#1a202c] text-gray-300" onClick={resetState}>
+            <button
+              className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all border"
+              style={{ background: 'var(--muted)', color: 'var(--muted-foreground)', borderColor: 'var(--border)' }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--foreground)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted-foreground)' }}
+              onClick={resetState}
+            >
               Voltar
-            </Button>
-            <Button
-              className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold disabled:bg-[#1a202c] disabled:text-gray-500"
+            </button>
+            <button
+              className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all text-black bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50"
               disabled={!selectedConta || previewLoading}
               onClick={handlePreview}
             >
@@ -322,7 +341,7 @@ export default function ImportarPage() {
               ) : (
                 <><Eye className="w-4 h-4 mr-2" /> Analisar Lançamentos</>
               )}
-            </Button>
+            </button>
           </div>
         </div>
       )}
@@ -331,20 +350,20 @@ export default function ImportarPage() {
       {step === 'review' && (
         <div className="space-y-4">
           {/* Summary bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 bg-[#12161f] border border-[#222834] rounded-xl p-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl p-4" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
             <div className="flex items-center gap-6">
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Total de itens</p>
-                <p className="text-xl font-bold text-gray-100">{editableItems.length}</p>
+                <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'var(--muted-foreground)' }}>Total de itens</p>
+                <p className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>{editableItems.length}</p>
               </div>
-              <div className="h-8 w-px bg-[#222834]" />
+              <div className="h-8 w-px" style={{ background: 'var(--border)' }} />
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Selecionados</p>
+                <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'var(--muted-foreground)' }}>Selecionados</p>
                 <p className="text-xl font-bold text-yellow-500">{totalSelecionados}</p>
               </div>
-              <div className="h-8 w-px bg-[#222834]" />
+              <div className="h-8 w-px" style={{ background: 'var(--border)' }} />
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Valor Total</p>
+                <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'var(--muted-foreground)' }}>Valor Total</p>
                 <p className="text-xl font-bold text-[#10b981]">R$ {totalValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               </div>
             </div>
@@ -355,30 +374,32 @@ export default function ImportarPage() {
                 placeholder="Filtrar..."
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                className="h-9 pl-9 pr-4 w-56 rounded-lg border border-[#2a3140] bg-[#1a202c] text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                className="h-9 pl-9 pr-4 w-56 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
               />
             </div>
           </div>
 
           {/* Table */}
-          <div className="bg-[#12161f] border border-[#222834] rounded-xl overflow-hidden">
+          <div className="rounded-xl overflow-hidden" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#222834] text-left">
+                  <tr className="text-left" style={{ borderBottom: '1px solid var(--border)' }}>
                     <th className="p-3 w-10">
                       <input
                         type="checkbox"
                         checked={selectAll}
                         onChange={toggleSelectAll}
-                        className="w-4 h-4 rounded border-[#2a3140] bg-[#1a202c] text-yellow-500 focus:ring-yellow-500 cursor-pointer accent-yellow-500"
+                        className="w-4 h-4 rounded text-yellow-500 focus:ring-yellow-500 cursor-pointer accent-yellow-500"
+                        style={{ border: '1px solid var(--border)', background: 'var(--muted)' }}
                       />
                     </th>
-                    <th className="p-3 text-gray-400 font-medium">Data</th>
-                    <th className="p-3 text-gray-400 font-medium">Descrição</th>
-                    <th className="p-3 text-gray-400 font-medium text-right">Valor</th>
-                    <th className="p-3 text-gray-400 font-medium">Tipo</th>
-                    <th className="p-3 text-gray-400 font-medium">Categoria</th>
+                    <th className="p-3 font-semibold" style={{ color: 'var(--muted-foreground)' }}>Data</th>
+                    <th className="p-3 font-semibold" style={{ color: 'var(--muted-foreground)' }}>Descrição</th>
+                    <th className="p-3 font-semibold text-right" style={{ color: 'var(--muted-foreground)' }}>Valor</th>
+                    <th className="p-3 font-semibold" style={{ color: 'var(--muted-foreground)' }}>Tipo</th>
+                    <th className="p-3 font-semibold" style={{ color: 'var(--muted-foreground)' }}>Categoria</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -388,22 +409,28 @@ export default function ImportarPage() {
                     return (
                       <tr
                         key={realIdx}
-                        className={`border-b border-[#1a202c] transition-colors ${
-                          item.selected ? 'bg-transparent hover:bg-[#1a202c]/60' : 'bg-[#0d1117] opacity-50'
-                        }`}
+                        className="transition-colors"
+                        style={{
+                          borderBottom: '1px solid var(--border)',
+                          opacity: item.selected ? 1 : 0.5,
+                          background: item.selected ? 'transparent' : 'rgba(0,0,0,0.02)'
+                        }}
+                        onMouseEnter={e => { if (item.selected) e.currentTarget.style.background = 'var(--muted)' }}
+                        onMouseLeave={e => { if (item.selected) e.currentTarget.style.background = 'transparent' }}
                       >
                         <td className="p-3">
                           <input
                             type="checkbox"
                             checked={item.selected}
                             onChange={() => toggleItem(realIdx)}
-                            className="w-4 h-4 rounded border-[#2a3140] bg-[#1a202c] text-yellow-500 focus:ring-yellow-500 cursor-pointer accent-yellow-500"
+                            className="w-4 h-4 rounded text-yellow-500 focus:ring-yellow-500 cursor-pointer accent-yellow-500"
+                            style={{ border: '1px solid var(--border)', background: 'var(--muted)' }}
                           />
                         </td>
-                        <td className="p-3 text-gray-300 whitespace-nowrap font-mono text-xs">
+                        <td className="whitespace-nowrap font-mono text-xs p-3 font-semibold" style={{ color: 'var(--foreground)' }}>
                           {new Date(item.date + 'T12:00:00').toLocaleDateString('pt-BR')}
                         </td>
-                        <td className="p-3 text-gray-200 font-medium max-w-[240px] truncate" title={item.title}>
+                        <td className="p-3 font-medium max-w-[240px] truncate" style={{ color: 'var(--foreground)' }} title={item.title}>
                           {item.title}
                         </td>
                         <td className={`p-3 text-right font-semibold whitespace-nowrap ${
@@ -437,7 +464,8 @@ export default function ImportarPage() {
                                     updateCategory(realIdx, e.target.value)
                                   }
                                 }}
-                                className="h-8 px-2 rounded-lg border border-yellow-500/50 bg-[#1a202c] text-xs text-gray-200 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                                className="h-8 px-2 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                                style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                                 autoFocus
                               >
                                 {allCategories.map(c => (
@@ -445,7 +473,6 @@ export default function ImportarPage() {
                                 ))}
                                 <option value="__custom__">+ Nova categoria...</option>
                               </select>
-                              {customCategory !== '' || !allCategories.includes(item.category) ? null : null}
                               <div className="flex gap-1">
                                 <input
                                   type="text"
@@ -457,7 +484,8 @@ export default function ImportarPage() {
                                     }
                                   }}
                                   placeholder="Ou digite nova..."
-                                  className="flex-1 h-7 px-2 rounded-md border border-[#2a3140] bg-[#0d1117] text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                                  className="flex-1 h-7 px-2 rounded-md text-xs placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                                  style={{ border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--foreground)' }}
                                 />
                                 {customCategory.trim() && (
                                   <button
@@ -468,14 +496,14 @@ export default function ImportarPage() {
                                   </button>
                                 )}
                               </div>
-                              <button onClick={() => { setEditingIdx(null); setCustomCategory('') }} className="text-[10px] text-gray-500 hover:text-gray-300 mt-0.5">
-                                Cancelar
-                              </button>
                             </div>
                           ) : (
                             <button
                               onClick={() => { setEditingIdx(realIdx); setCustomCategory('') }}
-                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1a202c] border border-[#2a3140] text-xs text-gray-300 hover:border-yellow-500/50 hover:text-yellow-500 transition-all group"
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs transition-all group"
+                              style={{ background: 'var(--muted)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
+                              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
+                              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--foreground)' }}
                             >
                               <span className="truncate max-w-[140px]">{item.category}</span>
                               <Pencil className="w-3 h-3 text-gray-600 group-hover:text-yellow-500 shrink-0" />
@@ -492,15 +520,17 @@ export default function ImportarPage() {
 
           {/* Actions */}
           <div className="flex gap-3">
-            <Button
-              variant="outline"
-              className="border-[#3e485e] hover:bg-[#1a202c] text-gray-300"
+            <button
+              className="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all border"
+              style={{ background: 'var(--muted)', color: 'var(--muted-foreground)', borderColor: 'var(--border)' }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--foreground)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted-foreground)' }}
               onClick={() => setStep('configure')}
             >
               Voltar
-            </Button>
-            <Button
-              className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold disabled:bg-[#1a202c] disabled:text-gray-500"
+            </button>
+            <button
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all text-black bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50"
               disabled={loading || totalSelecionados === 0}
               onClick={handleConfirmImport}
             >
@@ -509,7 +539,7 @@ export default function ImportarPage() {
               ) : (
                 <><Download className="w-4 h-4 mr-2" /> Importar {totalSelecionados} Lançamentos</>
               )}
-            </Button>
+            </button>
           </div>
         </div>
       )}
@@ -517,11 +547,11 @@ export default function ImportarPage() {
       {/* ─── Step 4: Result ─────────────────────────────────────────────── */}
       {step === 'result' && result && (
         <div className="space-y-6">
-          <div className="bg-[#12161f] border border-[#222834] rounded-2xl p-8 text-center space-y-4 shadow-lg">
-            <div className="mx-auto w-16 h-16 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 flex items-center justify-center">
+          <div className="rounded-2xl p-8 text-center space-y-4 shadow-lg" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+            <div className="mx-auto w-16 h-16 rounded-full bg-[#10b981]/10 border border-[#10b981]/25 flex items-center justify-center">
               <CheckCircle2 className="w-8 h-8 text-[#10b981]" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-50">Importação Concluída!</h3>
+            <h3 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Importação Concluída!</h3>
 
             <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto pt-4">
               <div className="bg-[#10b981]/10 rounded-xl p-4 border border-[#10b981]/20">
@@ -535,7 +565,7 @@ export default function ImportarPage() {
             </div>
 
             {result.erros && result.erros.length > 0 && (
-              <div className="bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-xl p-4 text-left mt-4 text-[#ef4444]">
+              <div className="border rounded-xl p-4 text-left mt-4" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
                 <p className="text-sm font-medium mb-2">Erros encontrados:</p>
                 <ul className="text-sm space-y-1">
                   {result.erros.map((erro, i) => (
@@ -549,9 +579,12 @@ export default function ImportarPage() {
             )}
           </div>
 
-          <Button className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-semibold" onClick={resetState}>
+          <button
+            className="w-full py-3 rounded-xl text-sm font-semibold transition-all text-black bg-yellow-500 hover:bg-yellow-400"
+            onClick={resetState}
+          >
             Importar outro arquivo
-          </Button>
+          </button>
         </div>
       )}
     </div>

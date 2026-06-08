@@ -27,14 +27,15 @@ function ColorPicker({ value, onChange }: ColorPickerProps) {
     <div className="mt-1 space-y-3">
       {/* Preview + input nativo */}
       <div
-        className="flex items-center gap-3 h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 cursor-pointer hover:border-yellow-500 transition-colors"
+        className="flex items-center gap-3 h-11 w-full rounded-md px-3 cursor-pointer hover:border-yellow-500 transition-colors"
+        style={{ border: '1px solid var(--border)', background: 'var(--muted)' }}
         onClick={() => inputRef.current?.click()}
       >
         <div
           className="w-6 h-6 rounded-full border-2 border-white/20 shadow-md flex-shrink-0"
           style={{ backgroundColor: value }}
         />
-        <span className="text-sm text-gray-300 font-mono flex-1">{value.toUpperCase()}</span>
+        <span className="text-sm font-mono flex-1" style={{ color: 'var(--foreground)' }}>{value.toUpperCase()}</span>
         <Palette className="w-4 h-4 text-gray-500" />
         {/* Input nativo invisível */}
         <input
@@ -165,89 +166,105 @@ export default function ContasPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-50">Contas Financeiras</h1>
-          <p className="text-gray-400 mt-1">Gerencie suas contas bancárias e carteiras</p>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--foreground)' }}>Contas Financeiras</h1>
+          <p className="mt-1" style={{ color: 'var(--muted-foreground)' }}>Gerencie suas contas bancárias e carteiras</p>
         </div>
-        <Button
+        <button
           onClick={() => { resetForm(); setShowModal(true) }}
-          className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow-md text-black bg-yellow-500 hover:bg-yellow-400"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4" />
           Nova Conta
-        </Button>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {contas.map((conta) => (
-          <Card
+          <div
             key={conta.id_conta}
-            className="bg-[#12161f] border-[#222834] hover:shadow-lg transition-shadow hover:border-[#3e485e]"
+            className="rounded-2xl transition-all hover:shadow-md flex flex-col overflow-hidden"
+            style={{
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+            }}
           >
-            <CardHeader className="pb-3 border-b border-[#222834] bg-[#151a22]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div
-                    className="w-4 h-4 rounded-full shadow-md flex-shrink-0"
-                    style={{ backgroundColor: conta.cor || '#3b82f6' }}
-                  />
-                  <CardTitle className="text-lg text-gray-100">{conta.nome}</CardTitle>
+            {/* Top bar color stripe */}
+            <div
+              className="h-1.5 w-full"
+              style={{ background: `linear-gradient(90deg, ${conta.cor || '#3b82f6'}, ${conta.cor || '#3b82f6'}44)` }}
+            />
+            
+            {/* Header */}
+            <div className="p-4 flex items-center justify-between pb-3" style={{ borderBottom: '1px solid var(--border)' }}>
+              <div className="flex items-center space-x-3">
+                <div
+                  className="w-4 h-4 rounded-full shadow-md flex-shrink-0"
+                  style={{ backgroundColor: conta.cor || '#3b82f6' }}
+                />
+                <span className="font-semibold text-base" style={{ color: 'var(--foreground)' }}>{conta.nome}</span>
+              </div>
+              {/* Botão olhinho */}
+              <button
+                type="button"
+                onClick={() => toggleSaldo(conta.id_conta)}
+                className="p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                title={saldoOculto.has(conta.id_conta) ? 'Mostrar saldo' : 'Ocultar saldo'}
+              >
+                {saldoOculto.has(conta.id_conta) ? (
+                  <EyeOff className="w-4 h-4 text-gray-500" />
+                ) : (
+                  <Eye className="w-4 h-4 text-emerald-500" />
+                )}
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>Tipo</p>
+                  <p className="font-medium mt-0.5" style={{ color: 'var(--foreground)' }}>{conta.tipo}</p>
                 </div>
-                {/* Botão olhinho — oculta/exibe o saldo ao clicar */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>Saldo Atual</p>
+                  <p className="text-2xl font-bold tracking-wider mt-0.5" style={{ color: 'var(--foreground)' }}>
+                    {saldoOculto.has(conta.id_conta)
+                      ? '• • • • • •'
+                      : formatCurrency(parseFloat(String(conta.saldo_atual || conta.saldo_inicial)))}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex space-x-2 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
                 <button
-                  type="button"
-                  onClick={() => toggleSaldo(conta.id_conta)}
-                  className="p-1.5 rounded-lg hover:bg-[#1a202c] transition-colors"
-                  title={saldoOculto.has(conta.id_conta) ? 'Mostrar saldo' : 'Ocultar saldo'}
+                  onClick={() => handleEdit(conta)}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all"
+                  style={{ background: 'var(--muted)', color: 'var(--muted-foreground)', border: '1px solid var(--border)' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--foreground)' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted-foreground)' }}
                 >
-                  {saldoOculto.has(conta.id_conta) ? (
-                    <EyeOff className="w-4 h-4 text-gray-500" />
-                  ) : (
-                    <Eye className="w-4 h-4 text-emerald-500" />
-                  )}
+                  <Pencil className="w-3.5 h-3.5" />
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(conta.id_conta)}
+                  className="flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all"
+                  style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)' }}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-4">
-              <div>
-                <p className="text-sm text-gray-400">Tipo</p>
-                <p className="font-medium text-gray-200">{conta.tipo}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Saldo Atual</p>
-                <p className="text-2xl font-bold text-gray-50 tracking-wider">
-                  {saldoOculto.has(conta.id_conta)
-                    ? '• • • • • •'
-                    : formatCurrency(parseFloat(String(conta.saldo_atual || conta.saldo_inicial)))}
-                </p>
-              </div>
-              <div className="flex space-x-2 pt-4 border-t border-[#222834]">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 border-[#3e485e] text-gray-300 hover:bg-[#1a202c]"
-                  onClick={() => handleEdit(conta)}
-                >
-                  <Pencil className="w-3 h-3 mr-1" />
-                  Editar
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(conta.id_conta)}
-                  className="bg-red-500/20 text-red-500 hover:bg-red-500/30 border border-red-500/20"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
 
       {contas.length === 0 && (
-        <Card className="bg-[#12161f] border-[#222834]">
+        <Card style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
           <CardContent className="text-center py-12">
-            <p className="text-gray-500 text-lg">Nenhuma conta cadastrada</p>
+            <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>Nenhuma conta cadastrada</p>
             <Button
               className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold"
               onClick={() => { resetForm(); setShowModal(true) }}
@@ -262,29 +279,31 @@ export default function ContasPage() {
       {/* Modal Nova / Editar Conta */}
       {showModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <Card className="w-full max-w-md bg-[#12161f] border-[#222834] shadow-[0_0_40px_rgba(0,0,0,0.5)] my-8">
-            <CardHeader className="border-b border-[#222834] bg-[#151a22]">
-              <CardTitle className="text-gray-100">
+          <Card className="w-full max-w-md my-8 overflow-hidden" style={{ background: 'var(--card)', border: '1px solid var(--border)', boxShadow: 'var(--glass-shadow)' }}>
+            <CardHeader style={{ borderBottom: '1px solid var(--border)', background: 'var(--muted)' }}>
+              <CardTitle style={{ color: 'var(--foreground)' }}>
                 {editingConta ? 'Editar Conta' : 'Nova Conta'}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Nome</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Nome</label>
                   <Input
                     value={formData.nome}
                     onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                     required
                     placeholder="Ex: Nubank, Itaú..."
-                    className="mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
+                    className="mt-1"
+                    style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Tipo</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Tipo</label>
                   <select
-                    className="flex h-11 w-full rounded-md border border-[#2a3140] bg-[#1a202c] px-3 py-1 text-sm text-gray-200 mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
+                    className="flex h-11 w-full rounded-md px-3 py-1 text-sm mt-1 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all outline-none"
+                    style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                     value={formData.tipo}
                     onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
                   >
@@ -296,7 +315,7 @@ export default function ContasPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Saldo Inicial</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Saldo Inicial</label>
                   <Input
                     type="number"
                     step="0.01"
@@ -305,33 +324,36 @@ export default function ContasPage() {
                     onChange={(e) => setFormData({ ...formData, saldo_inicial: e.target.value })}
                     required
                     placeholder="0,00"
-                    className="mt-1 border-[#2a3140] bg-[#1a202c] text-gray-200 focus-visible:ring-yellow-500"
+                    className="mt-1"
+                    style={{ border: '1px solid var(--border)', background: 'var(--muted)', color: 'var(--foreground)' }}
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Cor da Conta</label>
+                  <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Cor da Conta</label>
                   <ColorPicker
                     value={formData.cor}
                     onChange={(cor) => setFormData({ ...formData, cor })}
                   />
                 </div>
 
-                <div className="flex space-x-3 pt-6 border-t border-[#222834]">
-                  <Button
+                <div className="flex space-x-3 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
+                  <button
                     type="button"
-                    variant="outline"
-                    className="flex-1 border-[#3e485e] hover:bg-[#1a202c] text-gray-300"
+                    className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all border"
+                    style={{ background: 'var(--muted)', color: 'var(--muted-foreground)', borderColor: 'var(--border)' }}
+                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--foreground)' }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted-foreground)' }}
                     onClick={() => setShowModal(false)}
                   >
                     Cancelar
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     type="submit"
-                    className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold"
+                    className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all text-black bg-yellow-500 hover:bg-yellow-400"
                   >
                     {editingConta ? 'Salvar Alterações' : 'Criar Conta'}
-                  </Button>
+                  </button>
                 </div>
               </form>
             </CardContent>
