@@ -124,14 +124,14 @@ export default function CategoriasPage() {
           Todas
         </Button>
         <Button
-          className={filtroTipo === 'Receita' ? 'bg-[#10b981] hover:bg-[#10b981]/90 text-white font-semibold flex items-center' : 'bg-[#1a202c] border border-[#2a3140] text-gray-300 hover:bg-[#222834] transition-colors flex items-center'}
+          className={filtroTipo === 'Receita' ? 'bg-[#10b981] hover:bg-[#10b981]/90 text-white font-semibold flex items-center' : 'bg-[var(--input)] border border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)] transition-colors flex items-center'}
           onClick={() => setFiltroTipo('Receita')}
         >
           <TrendingUp className="w-4 h-4 mr-2" />
           Receitas
         </Button>
         <Button
-          className={filtroTipo === 'Despesa' ? 'bg-[#ef4444] hover:bg-[#ef4444]/90 text-white font-semibold flex items-center' : 'bg-[#1a202c] border border-[#2a3140] text-gray-300 hover:bg-[#222834] transition-colors flex items-center'}
+          className={filtroTipo === 'Despesa' ? 'bg-[#ef4444] hover:bg-[#ef4444]/90 text-white font-semibold flex items-center' : 'bg-[var(--input)] border border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)] transition-colors flex items-center'}
           onClick={() => setFiltroTipo('Despesa')}
         >
           <TrendingDown className="w-4 h-4 mr-2" />

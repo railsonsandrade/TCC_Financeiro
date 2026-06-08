@@ -19,14 +19,20 @@ export default function WidgetContainer({
   children,
 }: WidgetContainerProps) {
   return (
-    <div className="relative h-full flex flex-col bg-[#12161f] border border-[#222834] rounded-2xl overflow-hidden shadow-lg group">
+    <div
+      className="relative h-full flex flex-col rounded-2xl overflow-hidden shadow-lg group"
+      style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
+    >
       {/* Header (Área de Arraste) */}
-      <div className={`flex items-center justify-between px-4 py-3 border-b border-[#222834] bg-[#151a22] flex-shrink-0 ${editMode ? 'widget-drag-handle cursor-grab active:cursor-grabbing' : ''}`}>
+      <div
+        className={`flex items-center justify-between px-4 py-3 flex-shrink-0 ${editMode ? 'widget-drag-handle cursor-grab active:cursor-grabbing' : ''}`}
+        style={{ borderBottom: '1px solid var(--border)', background: 'var(--muted)' }}
+      >
         <div className="flex items-center gap-2 min-w-0">
           {editMode && (
-            <GripVertical className="w-4 h-4 text-gray-600 flex-shrink-0" />
+            <GripVertical className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--muted-foreground)' }} />
           )}
-          <span className="text-sm font-semibold text-gray-200 truncate">{titulo}</span>
+          <span className="text-sm font-semibold truncate" style={{ color: 'var(--foreground)' }}>{titulo}</span>
         </div>
 
         {editMode && (
@@ -34,7 +40,8 @@ export default function WidgetContainer({
             {onEdit && (
               <button
                 onClick={(e) => { e.stopPropagation(); onEdit() }}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
+                className="p-1.5 rounded-lg transition-colors hover:text-blue-500 hover:bg-blue-500/10"
+                style={{ color: 'var(--muted-foreground)' }}
                 title="Editar widget"
               >
                 <Pencil className="w-3.5 h-3.5" />
@@ -43,7 +50,8 @@ export default function WidgetContainer({
             {onDelete && (
               <button
                 onClick={(e) => { e.stopPropagation(); onDelete() }}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                className="p-1.5 rounded-lg transition-colors hover:text-red-500 hover:bg-red-500/10"
+                style={{ color: 'var(--muted-foreground)' }}
                 title="Remover widget"
               >
                 <X className="w-3.5 h-3.5" />
@@ -61,7 +69,7 @@ export default function WidgetContainer({
       {/* Resize handle hint in edit mode */}
       {editMode && (
         <div className="absolute bottom-1 right-1 w-3 h-3 opacity-30 pointer-events-none">
-          <svg viewBox="0 0 12 12" fill="none" className="text-gray-400 w-full h-full">
+          <svg viewBox="0 0 12 12" fill="none" style={{ color: 'var(--muted-foreground)' }} className="w-full h-full">
             <path d="M11 1L1 11M11 6L6 11M11 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
         </div>

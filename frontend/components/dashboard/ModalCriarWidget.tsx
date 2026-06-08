@@ -52,53 +52,64 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative bg-[#0f1420] border border-[#2a3140] rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div
+        className="relative rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden"
+        style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#222834] flex-shrink-0">
+        <div
+          className="flex items-center justify-between px-6 py-4 flex-shrink-0"
+          style={{ borderBottom: '1px solid var(--border)', background: 'var(--muted)' }}
+        >
           <div>
-            <h2 className="text-lg font-bold text-white">
+            <h2 className="text-lg font-bold" style={{ color: 'var(--foreground)' }}>
               {initialConfig?.titulo ? 'Editar Widget' : 'Criar Widget Personalizado'}
             </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
               Crie um gráfico personalizado para o seu dashboard
             </p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-lg transition-colors hover:bg-black/5" style={{ color: 'var(--muted-foreground)' }}>
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Progress */}
-        <div className="px-6 pt-4 flex-shrink-0">
+        <div className="px-6 pt-4 flex-shrink-0" style={{ background: 'var(--card)' }}>
           <div className="flex gap-1.5">
             {Array.from({ length: totalSteps }).map((_, i) => (
               <div
                 key={i}
                 className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                  i < step ? 'bg-blue-500' : 'bg-[#2a3140]'
+                  i < step ? 'bg-blue-500' : 'opacity-20'
                 }`}
+                style={i >= step ? { background: 'var(--muted-foreground)' } : {}}
               />
             ))}
           </div>
-          <p className="text-xs text-gray-500 mt-1.5">Etapa {step} de {totalSteps}</p>
+          <p className="text-xs mt-1.5" style={{ color: 'var(--muted-foreground)' }}>Etapa {step} de {totalSteps}</p>
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5" style={{ background: 'var(--card)' }}>
 
           {/* ── Quick Suggestions (visible only on step 1) ── */}
           {step === 1 && (
-            <div className="p-3 rounded-xl border border-[#2a3140] bg-[#151a22]">
+            <div
+              className="p-3 rounded-xl"
+              style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
+            >
               <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="w-4 h-4 text-yellow-400" />
-                <span className="text-xs font-semibold text-yellow-400">Sugestões rápidas</span>
+                <Lightbulb className="w-4 h-4 text-yellow-500" />
+                <span className="text-xs font-semibold text-yellow-600 dark:text-yellow-400">Sugestões rápidas</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {QUICK_SUGGESTIONS.map((sug) => (
                   <button
                     key={sug.titulo}
                     onClick={() => applyQuickSuggestion(sug)}
-                    className="px-3 py-1.5 text-xs rounded-lg border border-[#3e485e] bg-[#1a202c] text-gray-300 hover:border-blue-500 hover:text-blue-400 transition-colors"
+                    className="px-3 py-1.5 text-xs rounded-lg transition-colors hover:text-blue-500 hover:border-blue-500"
+                    style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--muted-foreground)' }}
                   >
                     {sug.titulo}
                   </button>
@@ -117,7 +128,8 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
                 value={config.titulo}
                 onChange={e => update('titulo', e.target.value)}
                 placeholder="Ex: Gastos com Alimentação, Receitas vs Despesas..."
-                className="w-full bg-[#1a202c] border border-[#2a3140] rounded-xl px-4 py-3 text-gray-100 placeholder-gray-600 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                style={{ background: 'var(--input)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
               />
             </div>
           )}
@@ -162,7 +174,7 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
               </div>
 
               <div className="mt-4">
-                <p className="text-xs text-gray-400 mb-2">Filtrar por tipo</p>
+                <p className="text-xs mb-2" style={{ color: 'var(--muted-foreground)' }}>Filtrar por tipo</p>
                 <div className="flex gap-2">
                   {(['Despesa', 'Receita', 'Todos'] as const).map(t => (
                     <button
@@ -170,9 +182,10 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
                       onClick={() => update('filtroTipo', t)}
                       className={`flex-1 py-2 rounded-lg text-xs font-semibold border transition-colors ${
                         config.filtroTipo === t
-                          ? 'bg-blue-500/20 border-blue-500 text-blue-400'
-                          : 'bg-[#1a202c] border-[#2a3140] text-gray-400 hover:border-gray-500'
+                          ? 'bg-blue-500/20 border-blue-500 text-blue-500 dark:text-blue-400'
+                          : 'hover:opacity-80'
                       }`}
+                      style={config.filtroTipo !== t ? { background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--muted-foreground)' } : {}}
                     >
                       {t}
                     </button>
@@ -194,12 +207,13 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
                     className={`flex flex-col items-center p-3 rounded-xl border text-center transition-colors ${
                       config.tipoGrafico === opt.value
                         ? 'bg-blue-500/20 border-blue-500'
-                        : 'bg-[#1a202c] border-[#2a3140] hover:border-[#3e485e]'
+                        : 'hover:opacity-80'
                     }`}
+                    style={config.tipoGrafico !== opt.value ? { background: 'var(--input)', borderColor: 'var(--border)' } : {}}
                   >
                     <span className="text-2xl mb-1">{opt.icon}</span>
-                    <span className={`text-xs font-semibold ${config.tipoGrafico === opt.value ? 'text-blue-400' : 'text-gray-300'}`}>{opt.label}</span>
-                    <span className="text-[10px] text-gray-500 mt-0.5 leading-tight">{opt.desc}</span>
+                    <span className={`text-xs font-semibold ${config.tipoGrafico === opt.value ? 'text-blue-500 dark:text-blue-400' : ''}`} style={config.tipoGrafico !== opt.value ? { color: 'var(--muted-foreground)' } : {}}>{opt.label}</span>
+                    <span className="text-[10px] mt-0.5 leading-tight" style={{ color: 'var(--muted-foreground)', opacity: 0.8 }}>{opt.desc}</span>
                   </button>
                 ))}
               </div>
@@ -213,7 +227,7 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
 
               {/* Período */}
               <div>
-                <p className="text-xs text-gray-400 mb-2">Período</p>
+                <p className="text-xs mb-2" style={{ color: 'var(--muted-foreground)' }}>Período</p>
                 <div className="grid grid-cols-1 gap-1.5">
                   {PERIOD_OPTIONS.map(opt => (
                     <button
@@ -221,9 +235,10 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
                       onClick={() => update('periodo', opt.value)}
                       className={`flex items-center justify-between px-3 py-2.5 rounded-lg border text-sm transition-colors ${
                         config.periodo === opt.value
-                          ? 'bg-blue-500/20 border-blue-500 text-blue-400'
-                          : 'bg-[#1a202c] border-[#2a3140] text-gray-300 hover:border-[#3e485e]'
+                          ? 'bg-blue-500/20 border-blue-500 text-blue-500 dark:text-blue-400'
+                          : 'hover:opacity-80'
                       }`}
+                      style={config.periodo !== opt.value ? { background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--foreground)' } : {}}
                     >
                       {opt.label}
                       {config.periodo === opt.value && <div className="w-2 h-2 rounded-full bg-blue-500" />}
@@ -234,7 +249,7 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
 
               {/* Top N */}
               <div>
-                <p className="text-xs text-gray-400 mb-2">Quantos resultados exibir</p>
+                <p className="text-xs mb-2" style={{ color: 'var(--muted-foreground)' }}>Quantos resultados exibir</p>
                 <div className="flex gap-2">
                   {[5, 10, 15, 20].map(n => (
                     <button
@@ -242,9 +257,10 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
                       onClick={() => update('topN', n)}
                       className={`flex-1 py-2 rounded-lg text-xs font-semibold border transition-colors ${
                         config.topN === n
-                          ? 'bg-blue-500/20 border-blue-500 text-blue-400'
-                          : 'bg-[#1a202c] border-[#2a3140] text-gray-400 hover:border-gray-500'
+                          ? 'bg-blue-500/20 border-blue-500 text-blue-500 dark:text-blue-400'
+                          : 'hover:opacity-80'
                       }`}
+                      style={config.topN !== n ? { background: 'var(--input)', borderColor: 'var(--border)', color: 'var(--muted-foreground)' } : {}}
                     >
                       Top {n}
                     </button>
@@ -254,14 +270,14 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
 
               {/* Cor */}
               <div>
-                <p className="text-xs text-gray-400 mb-2">Cor do gráfico</p>
+                <p className="text-xs mb-2" style={{ color: 'var(--muted-foreground)' }}>Cor do gráfico</p>
                 <div className="flex flex-wrap gap-2">
                   {CHART_COLORS_PALETTE.slice(0, 10).map(cor => (
                     <button
                       key={cor}
                       onClick={() => update('cor', cor)}
-                      className={`w-8 h-8 rounded-full transition-all duration-200 ${
-                        config.cor === cor ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0f1420] scale-110' : 'hover:scale-105'
+                      className={`w-8 h-8 rounded-full transition-all duration-200 shadow-sm ${
+                        config.cor === cor ? 'ring-2 ring-blue-500 scale-110' : 'hover:scale-105'
                       }`}
                       style={{ backgroundColor: cor }}
                     />
@@ -273,10 +289,14 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-[#222834] flex-shrink-0">
+        <div
+          className="flex items-center justify-between px-6 py-4 flex-shrink-0"
+          style={{ borderTop: '1px solid var(--border)', background: 'var(--muted)' }}
+        >
           <button
             onClick={() => step > 1 ? setStep(s => s - 1) : onClose()}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm transition-colors hover:bg-black/5"
+            style={{ color: 'var(--muted-foreground)' }}
           >
             <ChevronLeft className="w-4 h-4" />
             {step > 1 ? 'Voltar' : 'Cancelar'}
@@ -289,7 +309,7 @@ export default function ModalCriarWidget({ onClose, onSave, initialConfig }: Mod
               className={`flex items-center gap-1.5 px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 canNext()
                   ? 'bg-blue-600 hover:bg-blue-500 text-white'
-                  : 'bg-[#1a202c] text-gray-600 cursor-not-allowed'
+                  : 'bg-gray-300 dark:bg-gray-800 text-gray-500 cursor-not-allowed'
               }`}
             >
               Próximo
@@ -317,9 +337,9 @@ function StepHeader({ num, title, desc }: { num: number; title: string; desc: st
     <div className="mb-3">
       <div className="flex items-center gap-2 mb-1">
         <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{num}</span>
-        <span className="font-semibold text-gray-100 text-sm">{title}</span>
+        <span className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>{title}</span>
       </div>
-      <p className="text-xs text-gray-400 ml-8">{desc}</p>
+      <p className="text-xs ml-8" style={{ color: 'var(--muted-foreground)' }}>{desc}</p>
     </div>
   )
 }
@@ -335,12 +355,13 @@ function SelectCard({
       className={`flex flex-col items-start p-3 rounded-xl border text-left transition-colors w-full ${
         selected
           ? 'bg-blue-500/20 border-blue-500'
-          : 'bg-[#1a202c] border-[#2a3140] hover:border-[#3e485e]'
+          : 'hover:opacity-80'
       }`}
+      style={!selected ? { background: 'var(--input)', borderColor: 'var(--border)' } : {}}
     >
-      <span className={`text-sm font-semibold ${selected ? 'text-blue-400' : 'text-gray-300'}`}>{title}</span>
-      <span className="text-xs text-gray-500 mt-0.5 leading-tight">{desc}</span>
-      {example && <span className="text-[10px] text-gray-600 mt-1 italic">{example}</span>}
+      <span className={`text-sm font-semibold ${selected ? 'text-blue-500 dark:text-blue-400' : ''}`} style={!selected ? { color: 'var(--foreground)' } : {}}>{title}</span>
+      <span className="text-xs mt-0.5 leading-tight" style={{ color: 'var(--muted-foreground)' }}>{desc}</span>
+      {example && <span className="text-[10px] mt-1 italic" style={{ color: 'var(--muted-foreground)', opacity: 0.7 }}>{example}</span>}
     </button>
   )
 }

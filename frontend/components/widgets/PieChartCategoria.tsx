@@ -14,10 +14,13 @@ const CHART_COLORS = [
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#1a202c] border border-[#2a3140] rounded-xl p-3 shadow-xl">
-        <p className="text-gray-300 font-semibold text-sm">{payload[0].name}</p>
-        <p className="text-white font-bold">{formatCurrency(payload[0].value)}</p>
-        <p className="text-gray-400 text-xs">{payload[0].payload.percent?.toFixed(1)}%</p>
+      <div
+        className="rounded-xl p-3 shadow-xl border"
+        style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
+      >
+        <p className="font-semibold text-sm" style={{ color: 'var(--muted-foreground)' }}>{payload[0].name}</p>
+        <p className="font-bold" style={{ color: 'var(--foreground)' }}>{formatCurrency(payload[0].value)}</p>
+        <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{payload[0].payload.percent?.toFixed(1)}%</p>
       </div>
     )
   }
@@ -49,7 +52,7 @@ export default function PieChartCategoria({ dados, tipo = 'Despesa' }: PieChartC
 
   if (comPercent.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
+      <div className="flex items-center justify-center h-full" style={{ color: 'var(--muted-foreground)' }}>
         <div className="text-center">
           <div className="text-4xl mb-2">🥧</div>
           <p className="text-sm">Sem dados para exibir</p>
@@ -72,14 +75,15 @@ export default function PieChartCategoria({ dados, tipo = 'Despesa' }: PieChartC
             innerRadius="40%"
             dataKey="valor"
             nameKey="categoria"
+            stroke="var(--card)"
           >
             {comPercent.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} stroke="transparent" />
+              <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} strokeWidth={2} />
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />
           <Legend
-            formatter={(value) => <span className="text-gray-300 text-xs">{value}</span>}
+            formatter={(value) => <span className="text-xs" style={{ color: 'var(--foreground)' }}>{value}</span>}
             iconType="circle"
             iconSize={8}
           />

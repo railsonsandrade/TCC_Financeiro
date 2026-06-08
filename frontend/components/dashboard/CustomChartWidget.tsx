@@ -17,12 +17,15 @@ import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns'
 const CustomTooltip = ({ active, payload, label, isCurrency }: any) => {
   if (!active || !payload || !payload.length) return null
   return (
-    <div className="bg-[#1a202c] border border-[#2a3140] rounded-xl p-3 shadow-xl min-w-[140px]">
-      {label && <p className="text-gray-400 text-xs mb-2">{label}</p>}
+    <div
+      className="rounded-xl p-3 shadow-xl min-w-[140px] border"
+      style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
+    >
+      {label && <p className="text-xs mb-2" style={{ color: 'var(--muted-foreground)' }}>{label}</p>}
       {payload.map((entry: any, i: number) => (
         <div key={i} className="flex justify-between gap-4">
           <span style={{ color: entry.color || entry.fill }} className="text-xs font-medium">{entry.name || entry.dataKey}</span>
-          <span className="text-white text-xs font-bold">
+          <span className="text-xs font-bold" style={{ color: 'var(--foreground)' }}>
             {isCurrency ? formatCurrency(entry.value) : entry.value}
           </span>
         </div>
@@ -37,7 +40,7 @@ function NumberDisplay({ valor, isCurrency }: { valor: number; isCurrency: boole
   return (
     <div className="flex items-center justify-center h-full">
       <div className="text-center">
-        <div className="text-4xl md:text-5xl font-black text-white">
+        <div className="text-4xl md:text-5xl font-black" style={{ color: 'var(--foreground)' }}>
           {isCurrency ? formatCurrency(valor) : valor.toLocaleString('pt-BR')}
         </div>
       </div>
@@ -144,7 +147,7 @@ export default function CustomChartWidget({ config, globalFilter }: CustomChartW
 
   if (!chartData.length) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
+      <div className="flex items-center justify-center h-full" style={{ color: 'var(--muted-foreground)' }}>
         <div className="text-center">
           <div className="text-3xl mb-2">📭</div>
           <p className="text-sm">Sem dados para exibir</p>
@@ -162,22 +165,21 @@ export default function CustomChartWidget({ config, globalFilter }: CustomChartW
     return <NumberDisplay valor={totalSum} isCurrency={isCurrency} />
   }
 
-  const tickStyle = { fill: '#6b7280', fontSize: 11 }
-  const gridStroke = '#1e2535'
+  const tickStyle = { fill: 'var(--muted-foreground)', fontSize: 11 }
+  const gridStroke = 'var(--border)'
 
   // ── BAR (vertical) ──
   if (config.tipoGrafico === 'bar') {
-    const dataKey = isComparison ? undefined : 'valor'
     return (
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 5, right: 15, left: 5, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-          <XAxis dataKey="nome" tick={tickStyle} axisLine={{ stroke: '#2a3140' }} tickLine={false} />
+          <XAxis dataKey="nome" tick={tickStyle} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
           <YAxis tickFormatter={isCurrency ? v => `R$${(v/1000).toFixed(0)}k` : undefined} tick={tickStyle} axisLine={false} tickLine={false} />
-          <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} />
+          <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} cursor={{ fill: 'var(--muted)', opacity: 0.4 }} />
           {isComparison ? (
             <>
-              <Legend formatter={v => <span className="text-gray-300 text-xs">{v}</span>} iconType="circle" iconSize={8} />
+              <Legend formatter={v => <span className="text-xs" style={{ color: 'var(--foreground)' }}>{v}</span>} iconType="circle" iconSize={8} />
               <Bar dataKey={labelA} fill={config.cor} radius={[4,4,0,0]} maxBarSize={32} />
               <Bar dataKey={labelB} fill={CHART_COLORS_PALETTE[3]} radius={[4,4,0,0]} maxBarSize={32} />
             </>
@@ -197,9 +199,9 @@ export default function CustomChartWidget({ config, globalFilter }: CustomChartW
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
-          <XAxis type="number" tickFormatter={isCurrency ? v => `R$${(v/1000).toFixed(1)}k` : undefined} tick={tickStyle} axisLine={{ stroke: '#2a3140' }} tickLine={false} />
-          <YAxis type="category" dataKey="nome" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} width={110} />
-          <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} />
+          <XAxis type="number" tickFormatter={isCurrency ? v => `R$${(v/1000).toFixed(1)}k` : undefined} tick={tickStyle} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
+          <YAxis type="category" dataKey="nome" tick={tickStyle} axisLine={false} tickLine={false} width={110} />
+          <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} cursor={{ fill: 'var(--muted)', opacity: 0.4 }} />
           <Bar dataKey="valor" radius={[0, 6, 6, 0]} maxBarSize={24}>
             {chartData.map((_, i) => <Cell key={i} fill={CHART_COLORS_PALETTE[i % CHART_COLORS_PALETTE.length]} />)}
           </Bar>
@@ -213,11 +215,11 @@ export default function CustomChartWidget({ config, globalFilter }: CustomChartW
     return (
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
-          <Pie data={chartData} dataKey="valor" nameKey="nome" cx="50%" cy="50%" outerRadius="75%" label={({ name, percent }: any) => `${((percent || 0)*100).toFixed(0)}%`} labelLine={false}>
-            {chartData.map((_, i) => <Cell key={i} fill={CHART_COLORS_PALETTE[i % CHART_COLORS_PALETTE.length]} stroke="transparent" />)}
+          <Pie data={chartData} dataKey="valor" nameKey="nome" cx="50%" cy="50%" outerRadius="75%" label={({ name, percent }: any) => `${((percent || 0)*100).toFixed(0)}%`} labelLine={false} stroke="var(--card)">
+            {chartData.map((_, i) => <Cell key={i} fill={CHART_COLORS_PALETTE[i % CHART_COLORS_PALETTE.length]} strokeWidth={2} />)}
           </Pie>
           <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} />
-          <Legend formatter={v => <span className="text-gray-300 text-xs">{v}</span>} iconType="circle" iconSize={8} />
+          <Legend formatter={v => <span className="text-xs" style={{ color: 'var(--foreground)' }}>{v}</span>} iconType="circle" iconSize={8} />
         </PieChart>
       </ResponsiveContainer>
     )
@@ -228,11 +230,11 @@ export default function CustomChartWidget({ config, globalFilter }: CustomChartW
     return (
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
-          <Pie data={chartData} dataKey="valor" nameKey="nome" cx="50%" cy="50%" outerRadius="75%" innerRadius="42%">
-            {chartData.map((_, i) => <Cell key={i} fill={CHART_COLORS_PALETTE[i % CHART_COLORS_PALETTE.length]} stroke="transparent" />)}
+          <Pie data={chartData} dataKey="valor" nameKey="nome" cx="50%" cy="50%" outerRadius="75%" innerRadius="42%" stroke="var(--card)">
+            {chartData.map((_, i) => <Cell key={i} fill={CHART_COLORS_PALETTE[i % CHART_COLORS_PALETTE.length]} strokeWidth={2} />)}
           </Pie>
           <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} />
-          <Legend formatter={v => <span className="text-gray-300 text-xs">{v}</span>} iconType="circle" iconSize={8} />
+          <Legend formatter={v => <span className="text-xs" style={{ color: 'var(--foreground)' }}>{v}</span>} iconType="circle" iconSize={8} />
         </PieChart>
       </ResponsiveContainer>
     )
@@ -244,9 +246,9 @@ export default function CustomChartWidget({ config, globalFilter }: CustomChartW
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 5, right: 15, left: 5, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-          <XAxis dataKey="nome" tick={tickStyle} axisLine={{ stroke: '#2a3140' }} tickLine={false} />
+          <XAxis dataKey="nome" tick={tickStyle} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
           <YAxis tickFormatter={isCurrency ? v => `R$${(v/1000).toFixed(0)}k` : undefined} tick={tickStyle} axisLine={false} tickLine={false} />
-          <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} />
+          <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} cursor={{ stroke: 'var(--border)', strokeWidth: 1, strokeDasharray: '3 3' }} />
           <Line type="monotone" dataKey="valor" stroke={config.cor} strokeWidth={2} dot={{ r: 3, fill: config.cor, strokeWidth: 0 }} activeDot={{ r: 5 }} />
         </LineChart>
       </ResponsiveContainer>
@@ -264,9 +266,9 @@ export default function CustomChartWidget({ config, globalFilter }: CustomChartW
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-        <XAxis dataKey="nome" tick={tickStyle} axisLine={{ stroke: '#2a3140' }} tickLine={false} />
+        <XAxis dataKey="nome" tick={tickStyle} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
         <YAxis tickFormatter={isCurrency ? v => `R$${(v/1000).toFixed(0)}k` : undefined} tick={tickStyle} axisLine={false} tickLine={false} />
-        <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} />
+        <Tooltip content={<CustomTooltip isCurrency={isCurrency} />} cursor={{ stroke: 'var(--border)', strokeWidth: 1, strokeDasharray: '3 3' }} />
         <Area type="monotone" dataKey="valor" stroke={config.cor} strokeWidth={2} fill={`url(#grad-${config.cor.replace('#','')})`} dot={{ r: 3, fill: config.cor, strokeWidth: 0 }} />
       </AreaChart>
     </ResponsiveContainer>

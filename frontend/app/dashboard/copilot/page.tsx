@@ -97,7 +97,7 @@ export default function CopilotPage() {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 bg-[#12161f] rounded-2xl border border-[#222834] shadow-lg overflow-hidden flex flex-col">
+      <div className="flex-1 bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-lg overflow-hidden flex flex-col">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           {messages.length === 0 ? (
@@ -144,7 +144,7 @@ export default function CopilotPage() {
                   className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
                     message.role === 'user'
                       ? 'bg-yellow-500 text-black font-medium rounded-tr-sm'
-                      : 'bg-[#1a202c] text-gray-200 border border-[#2a3140] rounded-tl-sm'
+                      : 'bg-[var(--input)] text-[var(--foreground)] border border-[var(--border)] rounded-tl-sm'
                   }`}
                 >
                   <div className="whitespace-pre-wrap">{message.content}</div>
@@ -163,7 +163,7 @@ export default function CopilotPage() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-800 border border-violet-500/30 flex items-center justify-center shrink-0 shadow-md">
                 <Bot className="w-4 h-4 text-white" />
               </div>
-              <div className="bg-[#1a202c] border border-[#2a3140] rounded-2xl rounded-tl-sm px-4 py-3">
+              <div className="bg-[var(--input)] border border-[var(--border)] rounded-2xl rounded-tl-sm px-4 py-3">
                 <div className="flex items-center gap-2 text-sm text-violet-400">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Pensando...
@@ -176,7 +176,7 @@ export default function CopilotPage() {
         </div>
 
         {/* Input */}
-        <div className="border-t border-[#222834] p-4 bg-[#151a22]">
+        <div className="border-t border-[var(--border)] p-4 bg-[var(--muted)]">
           <form onSubmit={handleSubmit} className="flex gap-3">
             <input
               ref={inputRef}
@@ -184,7 +184,7 @@ export default function CopilotPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Pergunte sobre suas finanças..."
-              className="flex-1 h-12 px-4 rounded-xl border border-[#2a3140] bg-[#1a202c] text-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all placeholder:text-gray-500"
+              className="flex-1 h-12 px-4 rounded-xl border border-[var(--border)] bg-[var(--input)] text-[var(--foreground)] text-sm focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all placeholder:text-[var(--muted-foreground)]"
               disabled={loading}
             />
             <Button

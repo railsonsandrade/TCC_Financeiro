@@ -22,7 +22,7 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0f16] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
       </div>
     )
@@ -33,7 +33,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-transparent relative text-gray-100">
+    <div className="min-h-screen bg-transparent relative" style={{ color: 'var(--foreground)' }}>
       <ConstellationBackground />
       <div className="relative z-10 w-full h-full min-h-screen flex flex-col">
         <Navbar />

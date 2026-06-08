@@ -21,9 +21,12 @@ interface BarChartCategoriaProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#1a202c] border border-[#2a3140] rounded-xl p-3 shadow-xl">
-        <p className="text-gray-300 font-semibold text-sm mb-1">{label}</p>
-        <p className="text-white font-bold">{formatCurrency(payload[0].value)}</p>
+      <div
+        className="rounded-xl p-3 shadow-xl border"
+        style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
+      >
+        <p className="font-semibold text-sm mb-1" style={{ color: 'var(--muted-foreground)' }}>{label}</p>
+        <p className="font-bold" style={{ color: 'var(--foreground)' }}>{formatCurrency(payload[0].value)}</p>
       </div>
     )
   }
@@ -36,7 +39,7 @@ export default function BarChartCategoria({ dados, titulo = 'Gastos por Categori
 
   if (sorted.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
+      <div className="flex items-center justify-center h-full" style={{ color: 'var(--muted-foreground)' }}>
         <div className="text-center">
           <div className="text-4xl mb-2">📊</div>
           <p className="text-sm">Sem dados para exibir</p>
@@ -49,23 +52,23 @@ export default function BarChartCategoria({ dados, titulo = 'Gastos por Categori
     <div className="h-full flex flex-col">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={sorted} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e2535" horizontal={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
           <XAxis
             type="number"
             tickFormatter={(v) => `R$ ${(v / 1000).toFixed(1)}k`}
-            tick={{ fill: '#6b7280', fontSize: 11 }}
-            axisLine={{ stroke: '#2a3140' }}
+            tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }}
+            axisLine={{ stroke: 'var(--border)' }}
             tickLine={false}
           />
           <YAxis
             type="category"
             dataKey="categoria"
-            tick={{ fill: '#9ca3af', fontSize: 11 }}
+            tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={110}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--muted)', opacity: 0.4 }} />
           <Bar dataKey="valor" radius={[0, 6, 6, 0]} maxBarSize={28}>
             {sorted.map((_, index) => (
               <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />

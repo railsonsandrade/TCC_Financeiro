@@ -35,6 +35,14 @@ export default function RegisterPage() {
     }
   }
 
+  const inputStyle = {
+    background: 'var(--input)',
+    border: '1px solid var(--border)',
+    color: 'var(--foreground)',
+  }
+
+  const inputFocusClass = 'focus:ring-yellow-500/50 focus:border-yellow-500'
+
   return (
     <div className="min-h-screen relative overflow-hidden bg-transparent flex flex-col items-center justify-center p-4">
       {/* Toast */}
@@ -54,32 +62,46 @@ export default function RegisterPage() {
         
         {/* Logo and Greeting Header */}
         <div className="mb-8 text-center flex flex-col items-center">
-          <div className="w-14 h-14 bg-[#151a22] rounded-2xl flex items-center justify-center mb-6 border border-[#222834] shadow-[0_0_15px_rgba(234,179,8,0.15)]">
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+            style={{
+              background: 'var(--muted)',
+              border: '1px solid var(--border)',
+              boxShadow: '0 0 15px rgba(234,179,8,0.15)',
+            }}
+          >
             <Bot className="w-7 h-7 text-yellow-500" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-50 mb-2">Criar nova conta</h1>
-          <p className="text-gray-400 text-sm">
+          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>Criar nova conta</h1>
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
             Junte-se ao painel financeiro do Sob Controle
           </p>
         </div>
 
         {/* Register Card */}
-        <div className="w-full bg-[#12161f]/95 backdrop-blur-xl border border-[#222834] rounded-2xl p-8 shadow-2xl">
+        <div
+          className="w-full backdrop-blur-xl rounded-2xl p-8 shadow-2xl"
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+          }}
+        >
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-100">Cadastro</h2>
-            <p className="text-sm text-gray-500 mt-1">Preencha seus dados para começar</p>
+            <h2 className="text-xl font-bold" style={{ color: 'var(--card-foreground)' }}>Cadastro</h2>
+            <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>Preencha seus dados para começar</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Nome Completo</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground)' }}>Nome Completo</label>
               <div className="relative">
-                <Input
+                <input
                   id="register-nome"
                   type="text"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  className="w-full h-11 pl-4 pr-4 rounded-xl border border-[#2a3140] bg-[#1a202c] text-sm text-gray-200 placeholder-gray-500 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all"
+                  className={`w-full h-11 pl-4 pr-4 rounded-xl text-sm transition-all outline-none ${inputFocusClass}`}
+                  style={{ ...inputStyle, '--tw-ring-color': 'rgba(234,179,8,0.5)' } as React.CSSProperties}
                   placeholder="Ex: José Ricardo"
                   required
                   disabled={loading}
@@ -88,14 +110,15 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">E-mail</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground)' }}>E-mail</label>
               <div className="relative">
-                <Input
+                <input
                   id="register-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-11 pl-4 pr-4 rounded-xl border border-[#2a3140] bg-[#1a202c] text-sm text-gray-200 placeholder-gray-500 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all"
+                  className={`w-full h-11 pl-4 pr-4 rounded-xl text-sm transition-all outline-none ${inputFocusClass}`}
+                  style={inputStyle}
                   placeholder="seu@sobcontrole.com"
                   required
                   disabled={loading}
@@ -105,15 +128,16 @@ export default function RegisterPage() {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-medium text-gray-300">Senha</label>
+                <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Senha</label>
               </div>
               <div className="relative">
-                <Input
+                <input
                   id="register-password"
                   type={showPassword ? 'text' : 'password'}
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  className="w-full h-11 pl-4 pr-11 rounded-xl border border-[#2a3140] bg-[#1a202c] text-sm text-gray-200 placeholder-gray-500 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all"
+                  className={`w-full h-11 pl-4 pr-11 rounded-xl text-sm transition-all outline-none ${inputFocusClass}`}
+                  style={inputStyle}
                   placeholder="Mínimo 6 caracteres"
                   required
                   minLength={6}
@@ -122,7 +146,8 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center transition-colors"
+                  style={{ color: 'var(--muted-foreground)' }}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -146,8 +171,11 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-[#222834] flex justify-center">
-             <Link href="/login" className="text-sm text-gray-400 flex items-center gap-2 hover:text-yellow-500 transition-colors">
+          <div
+            className="mt-6 pt-6 flex justify-center"
+            style={{ borderTop: '1px solid var(--border)' }}
+          >
+             <Link href="/login" className="text-sm flex items-center gap-2 hover:text-yellow-500 transition-colors" style={{ color: 'var(--muted-foreground)' }}>
                <ArrowLeft className="w-4 h-4" /> Voltar ao Login
              </Link>
           </div>

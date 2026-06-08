@@ -10,18 +10,21 @@ import { formatCurrency } from '@/lib/utils'
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#1a202c] border border-[#2a3140] rounded-xl p-3 shadow-xl min-w-[160px]">
-        <p className="text-gray-400 text-xs mb-2">{label}</p>
+      <div
+        className="rounded-xl p-3 shadow-xl min-w-[160px] border"
+        style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
+      >
+        <p className="text-xs mb-2" style={{ color: 'var(--muted-foreground)' }}>{label}</p>
         {payload.map((entry: any) => (
           <div key={entry.name} className="flex justify-between gap-4">
             <span style={{ color: entry.color }} className="text-xs font-medium capitalize">{entry.name === 'receitas' ? 'Receitas' : 'Despesas'}</span>
-            <span className="text-white text-xs font-bold">{formatCurrency(entry.value)}</span>
+            <span className="text-xs font-bold" style={{ color: 'var(--foreground)' }}>{formatCurrency(entry.value)}</span>
           </div>
         ))}
-        <div className="border-t border-[#2a3140] mt-2 pt-2">
+        <div className="mt-2 pt-2" style={{ borderTop: '1px solid var(--border)' }}>
           <div className="flex justify-between">
-            <span className="text-gray-400 text-xs">Saldo</span>
-            <span className={`text-xs font-bold ${(payload[0]?.value || 0) - (payload[1]?.value || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Saldo</span>
+            <span className={`text-xs font-bold ${(payload[0]?.value || 0) - (payload[1]?.value || 0) >= 0 ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
               {formatCurrency((payload[0]?.value || 0) - (payload[1]?.value || 0))}
             </span>
           </div>
@@ -54,7 +57,7 @@ export default function AreaChartEvolucao({ dados }: AreaChartEvolucaoProps) {
 
   if (dadoFormatado.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
+      <div className="flex items-center justify-center h-full" style={{ color: 'var(--muted-foreground)' }}>
         <div className="text-center">
           <div className="text-4xl mb-2">📈</div>
           <p className="text-sm">Sem dados para exibir</p>
@@ -77,23 +80,23 @@ export default function AreaChartEvolucao({ dados }: AreaChartEvolucaoProps) {
               <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e2535" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
             dataKey="mes"
-            tick={{ fill: '#6b7280', fontSize: 11 }}
-            axisLine={{ stroke: '#2a3140' }}
+            tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }}
+            axisLine={{ stroke: 'var(--border)' }}
             tickLine={false}
           />
           <YAxis
             tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
-            tick={{ fill: '#6b7280', fontSize: 11 }}
+            tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--border)', strokeWidth: 1, strokeDasharray: '3 3' }} />
           <Legend
             formatter={(value) => (
-              <span className="text-gray-300 text-xs capitalize">
+              <span className="text-xs capitalize" style={{ color: 'var(--foreground)' }}>
                 {value === 'receitas' ? 'Receitas' : 'Despesas'}
               </span>
             )}

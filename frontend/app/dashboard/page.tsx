@@ -232,52 +232,71 @@ export default function DashboardPage() {
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-50 flex items-center gap-3">
-            <LayoutDashboard className="w-8 h-8 text-yellow-400" />
+          <h1 className="text-3xl md:text-4xl font-bold flex items-center gap-3" style={{ color: 'var(--foreground)' }}>
+            <LayoutDashboard className="w-8 h-8 text-yellow-500" />
             Dashboard
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">Visão geral e personalizável das suas finanças</p>
+          <p className="mt-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>Visão geral e personalizável das suas finanças</p>
         </div>
 
         {/* Period selector */}
         <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-1 bg-[#12161f] border border-[#222834] rounded-lg p-1">
+          <div
+            className="flex items-center gap-1 rounded-lg p-1"
+            style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
+          >
             <button 
               onClick={() => setFiltroTipo('mes')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filtroTipo === 'mes' ? 'bg-[#2a3140] text-blue-400' : 'text-gray-400 hover:text-gray-200'}`}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filtroTipo === 'mes' ? 'text-blue-500' : 'hover:opacity-70'}`}
+              style={{
+                background: filtroTipo === 'mes' ? 'var(--muted)' : 'transparent',
+                color: filtroTipo === 'mes' ? '#3b82f6' : 'var(--muted-foreground)'
+              }}
             >Mensal</button>
             <button 
               onClick={() => setFiltroTipo('periodo')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filtroTipo === 'periodo' ? 'bg-[#2a3140] text-blue-400' : 'text-gray-400 hover:text-gray-200'}`}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filtroTipo === 'periodo' ? 'text-blue-500' : 'hover:opacity-70'}`}
+              style={{
+                background: filtroTipo === 'periodo' ? 'var(--muted)' : 'transparent',
+                color: filtroTipo === 'periodo' ? '#3b82f6' : 'var(--muted-foreground)'
+              }}
             >Período</button>
           </div>
 
           {filtroTipo === 'mes' ? (
-            <div className="flex items-center gap-2 bg-[#12161f] border border-[#222834] rounded-xl px-3 py-2">
-              <button onClick={prevMonth} className="p-1 text-gray-400 hover:text-white transition-colors">
+            <div
+              className="flex items-center gap-2 rounded-xl px-3 py-2"
+              style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
+            >
+              <button onClick={prevMonth} className="p-1 transition-colors hover:opacity-70" style={{ color: 'var(--muted-foreground)' }}>
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-sm font-semibold text-gray-100 min-w-[120px] text-center capitalize">
+              <span className="text-sm font-semibold min-w-[120px] text-center capitalize" style={{ color: 'var(--foreground)' }}>
                 {format(periodoDate, 'MMMM yyyy', { locale: ptBR })}
               </span>
-              <button onClick={nextMonth} className="p-1 text-gray-400 hover:text-white transition-colors">
+              <button onClick={nextMonth} className="p-1 transition-colors hover:opacity-70" style={{ color: 'var(--muted-foreground)' }}>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 bg-[#12161f] border border-[#222834] rounded-xl px-3 py-1.5">
+            <div
+              className="flex items-center gap-2 rounded-xl px-3 py-1.5"
+              style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
+            >
               <input 
                 type="date" 
                 value={dataInicio} 
                 onChange={e => setDataInicio(e.target.value)}
-                className="bg-transparent text-sm text-gray-200 outline-none w-auto"
+                className="bg-transparent text-sm outline-none w-auto"
+                style={{ color: 'var(--foreground)' }}
               />
-              <span className="text-gray-500 text-sm">até</span>
+              <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>até</span>
               <input 
                 type="date" 
                 value={dataFim} 
                 onChange={e => setDataFim(e.target.value)}
-                className="bg-transparent text-sm text-gray-200 outline-none w-auto"
+                className="bg-transparent text-sm outline-none w-auto"
+                style={{ color: 'var(--foreground)' }}
               />
             </div>
           )}
@@ -295,9 +314,10 @@ export default function DashboardPage() {
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${
               editMode
-                ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400 hover:bg-yellow-500/30'
-                : 'bg-[#12161f] border-[#222834] text-gray-300 hover:border-gray-500 hover:text-white'
+                ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500 hover:bg-yellow-500/30'
+                : 'hover:opacity-80'
             }`}
+            style={!editMode ? { background: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' } : {}}
           >
             {editMode ? <><X className="w-4 h-4" /> Concluir Edição</> : <><Pencil className="w-4 h-4" /> Editar Layout</>}
           </button>
@@ -315,7 +335,8 @@ export default function DashboardPage() {
           {editMode && (
             <button
               onClick={handleResetLayout}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-400 hover:text-orange-400 border border-[#222834] hover:border-orange-500/50 bg-[#12161f] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors hover:border-orange-500/50 hover:text-orange-500"
+              style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--muted-foreground)' }}
               title="Resetar para layout padrão"
             >
               <RotateCcw className="w-4 h-4" />
@@ -326,7 +347,7 @@ export default function DashboardPage() {
         {/* Save status */}
         <div className="flex items-center gap-2">
           {saved && (
-            <span className="flex items-center gap-1.5 text-xs text-emerald-400 animate-fade-in">
+            <span className="flex items-center gap-1.5 text-xs text-emerald-500 animate-fade-in">
               <CheckCircle className="w-4 h-4" /> Layout salvo!
             </span>
           )}
@@ -345,11 +366,11 @@ export default function DashboardPage() {
 
       {/* ── Edit mode banner ── */}
       {editMode && (
-        <div className="flex items-center gap-3 px-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-sm text-yellow-300 animate-fade-in">
+        <div className="flex items-center gap-3 px-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-sm text-yellow-600 dark:text-yellow-400 animate-fade-in">
           <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Modo edição ativo — arraste os widgets para reposicioná-los e redimensione pelas bordas. Clique em <strong className="text-yellow-400">Concluir Edição</strong> para salvar automaticamente.
+          Modo edição ativo — arraste os widgets para reposicioná-los e redimensione pelas bordas. Clique em <strong className="text-yellow-600 dark:text-yellow-400">Concluir Edição</strong> para salvar automaticamente.
         </div>
       )}
 
@@ -358,7 +379,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4" />
-            <p className="text-gray-500 text-sm">Carregando dados...</p>
+            <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Carregando dados...</p>
           </div>
         </div>
       ) : (
@@ -391,3 +412,4 @@ export default function DashboardPage() {
     </div>
   )
 }
+

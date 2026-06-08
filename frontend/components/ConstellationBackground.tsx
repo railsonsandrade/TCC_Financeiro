@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
+import { useTheme } from '@/contexts/ThemeContext'
 
 interface Particle {
   x: number
@@ -12,6 +13,7 @@ interface Particle {
 
 export default function ConstellationBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { theme } = useTheme()
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -26,6 +28,16 @@ export default function ConstellationBackground() {
       x: -1000,
       y: -1000,
       radius: 150
+    }
+
+    // Ler variáveis CSS do tema atual
+    const getThemeColors = () => {
+      const style = getComputedStyle(document.documentElement)
+      return {
+        particleColor: style.getPropertyValue('--constellation-color').trim() || 'rgba(246, 186, 6, 0.8)',
+        lineColor: style.getPropertyValue('--constellation-line').trim() || 'rgba(234, 179, 8, 0.4)',
+        canvasBg: style.getPropertyValue('--canvas-bg').trim() || '#0a0f16',
+      }
     }
 
     const initCanvas = () => {
@@ -51,10 +63,11 @@ export default function ConstellationBackground() {
     }
 
     const drawParticles = () => {
+      const colors = getThemeColors()
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       
       // Draw standard particle fill color
-      ctx.fillStyle = 'rgba(234, 179, 8, 0.8)' // Yellow-500 hue
+      ctx.fillStyle = colors.particleColor
 
       particles.forEach((p, index) => {
         // Move particle
@@ -72,8 +85,9 @@ export default function ConstellationBackground() {
 
         if (distMouse < mouse.radius) {
           // Draw line to mouse
+          const alpha = 1 - distMouse / mouse.radius
           ctx.beginPath()
-          ctx.strokeStyle = `rgba(234, 179, 8, ${1 - distMouse / mouse.radius})`
+          ctx.strokeStyle = colors.lineColor.replace(/[\d.]+\)$/, `${alpha})`)
           ctx.lineWidth = 0.8
           ctx.moveTo(p.x, p.y)
           ctx.lineTo(mouse.x, mouse.y)
@@ -98,8 +112,9 @@ export default function ConstellationBackground() {
           const dist = Math.sqrt(dx * dx + dy * dy)
 
           if (dist < 120) {
+            const alpha = (1 - dist / 120) * 0.4
             ctx.beginPath()
-            ctx.strokeStyle = `rgba(234, 179, 8, ${(1 - dist / 120) * 0.4})`
+            ctx.strokeStyle = colors.lineColor.replace(/[\d.]+\)$/, `${alpha})`)
             ctx.lineWidth = 0.5
             ctx.moveTo(p.x, p.y)
             ctx.lineTo(p2.x, p2.y)
@@ -139,13 +154,13 @@ export default function ConstellationBackground() {
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseleave', handleMouseLeave)
     }
-  }, [])
+  }, [theme]) // Re-inicia quando o tema muda
 
   return (
     <canvas
       ref={canvasRef}
       className="fixed inset-0 w-full h-full pointer-events-none -z-10"
-      style={{ backgroundColor: '#0a0f16' }}
+      style={{ backgroundColor: 'var(--canvas-bg)', transition: 'background-color 0.3s ease' }}
     />
   )
 }
