@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://completotcc-production.up.railway.app',
+    baseURL: typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || 'https://completotcc-production.up.railway.app'),
 });
 
 api.interceptors.request.use((config) => {
