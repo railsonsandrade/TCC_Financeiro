@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: `${BACKEND_URL}/api/v1/:path*`,
+        destination: `https://completotcc-production.up.railway.app/api/v1/:path*`,
       },
     ];
   },
