@@ -57,6 +57,16 @@ async def health_check():
 app.include_router(api_router)
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Executado ao iniciar a aplicação"""
+    try:
+        from app.init_db import init_postgres_tables
+        init_postgres_tables()
+    except Exception as e:
+        print(f"Erro na inicialização: {e}")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
