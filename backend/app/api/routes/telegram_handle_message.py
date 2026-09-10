@@ -1,140 +1,12 @@
-"""
-Rota Telegram Bot — Sob Controle
-Integração direta com a API do Telegram (sem OpenClaw ou intermediários).
-Custo: ZERO. Setup: crie um bot em @BotFather e coloque o token no .env.
-
-Comandos suportados:
-  /start       — Boas-vindas e instruções de vinculação
-  /vincular    — Vincula o número de telefone Telegram à conta do sistema
-  /saldo       — Consulta saldo de todas as contas
-  /extrato     — Últimos 10 lançamentos
-  /resumo      — Resumo do mês atual (receitas, despesas, saldo)
-  /metas       — Lista metas ativas com progresso
-  /gasto       — Registra despesa: /gasto 50 Almoço
-  /receita     — Registra receita: /receita 3000 Salário
-  /copilot     — Pergunta à PatarIA: /copilot em que gastei mais?
-  /ajuda       — Lista de comandos
-"""
-
-import hmac
-import hashlib
-import logging
-from typing import Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, status, Request, Header, Depends
-from pydantic import BaseModel, Field
-from app.config import settings
-from app.api.dependencies import get_current_user
-from app.utils.database import get_db
-
-logger = logging.getLogger(__name__)
-
-router = APIRouter(prefix="/telegram", tags=["Telegram Bot"])
-
-
-# ─── Schemas do Telegram ─────────────────────────────────────────────────────
-
-class TelegramUser(BaseModel):
-    id: int
-    first_name: str
-    last_name: Optional[str] = None
-    username: Optional[str] = None
-
-
-class TelegramChat(BaseModel):
-    id: int
-    type: str
-
-
-class TelegramMessage(BaseModel):
-    message_id: int
-    from_user: Optional[TelegramUser] = Field(None, alias="from")
-    chat: TelegramChat
-    text: Optional[str] = None
-
-    model_config = {"populate_by_name": True}
-
-
-class TelegramUpdate(BaseModel):
-    update_id: int
-    message: Optional[TelegramMessage] = None
-
-    model_config = {"populate_by_name": True}
-
-
-# ─── Helpers ──────────────────────────────────────────────────────────────────
-
-HELP_TEXT = """
-*Sob Controle — Bot Telegram*
-
-*Consultas:*
-/saldo — Ver saldo das contas
-/extrato — Últimos 10 lançamentos
-/resumo — Resumo do mês atual
-/metas — Metas financeiras ativas
-
-*Registro rápido:*
-/gasto 50 Almoço — Registrar despesa
-/receita 3000 Salário — Registrar receita
-
-*Inteligência Artificial:*
-/copilot [pergunta] — Perguntar à PatarIA
-
-*Conta:*
-/vincular [código] — Vincular sua conta
-/ajuda — Esta mensagem de ajuda
-"""
-
-
-def _build_telegram_api_url(method: str) -> str:
-    token = settings.TELEGRAM_BOT_TOKEN
-    return f"https://api.telegram.org/bot{token}/{method}"
-
-
-async def _send_message(chat_id: int, text: str, parse_mode: str = "Markdown") -> None:
-    """Envia uma mensagem de volta ao usuário via Telegram API."""
-    import httpx
-    if not settings.TELEGRAM_BOT_TOKEN:
-        logger.warning("TELEGRAM_BOT_TOKEN não configurado — mensagem não enviada")
-        return
-    url = _build_telegram_api_url("sendMessage")
-    payload = {"chat_id": chat_id, "text": text, "parse_mode": parse_mode}
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.post(url, json=payload)
-        if resp.status_code != 200:
-            logger.error(f"Erro ao enviar mensagem Telegram: {resp.text}")
-
-
-def _parse_command(text: str):
-    """Extrai o comando e os argumentos de uma mensagem Telegram."""
-    parts = text.strip().split(maxsplit=1)
-    cmd = parts[0].lower().lstrip("/").split("@")[0]  # remove @botname se houver
-    args = parts[1] if len(parts) > 1 else ""
-    return cmd, args
-
-
-# ─── Processador de comandos ──────────────────────────────────────────────────
-
 
 from app.services.telegram_service import TelegramService
 from app.services.conta_financeira_service import ContaFinanceiraService
 from app.services.lancamento_service import LancamentoService
 from app.services.meta_financeira_service import MetaFinanceiraService
 from app.services.categoria_service import CategoriaService
-from app.api.routes.copilot import get_financial_context, call_ai_api, CopilotMessage
+from app.api.routes.copilot import get_financial_context, call_ai_api
 from app.schemas.lancamento import LancamentoCreate
-
-from decimal import Decimal
-from datetime import date
-
-
-from app.services.telegram_service import TelegramService
-from app.services.conta_financeira_service import ContaFinanceiraService
-from app.services.lancamento_service import LancamentoService
-from app.services.meta_financeira_service import MetaFinanceiraService
-from app.services.categoria_service import CategoriaService
-from app.api.routes.copilot import get_financial_context, call_ai_api, CopilotMessage
-from app.schemas.lancamento import LancamentoCreate
-
+from app.schemas.copilot import CopilotMessage
 from decimal import Decimal
 from datetime import date
 
@@ -216,8 +88,7 @@ async def _handle_message(message: TelegramMessage) -> None:
             for l in lancamentos:
                 icone = "🟢" if l.tipo == "Receita" else "🔴"
                 data_str = l.data.strftime("%d/%m")
-                desc_str = l.descricao or ''
-                linhas.append(f"{icone} {data_str} - {desc_str}: R$ {l.valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+                linhas.append(f"{icone} {data_str} - {l.descricao or '}: R$ {l.valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
             await _send_message(chat_id, "\n".join(linhas))
         except Exception as e:
             await _send_message(chat_id, f"Erro ao buscar extrato: {e}")
@@ -296,68 +167,3 @@ async def _handle_message(message: TelegramMessage) -> None:
 
     else:
         await _send_message(chat_id, f"Comando `/{cmd}` não reconhecido. Use /ajuda para ver os comandos disponíveis.")
-
-
-# ─── Endpoints ────────────────────────────────────────────────────────────────
-
-@router.post("/webhook", summary="Webhook do Telegram Bot")
-async def telegram_webhook(
-    request: Request,
-    x_telegram_bot_api_secret_token: Optional[str] = Header(None),
-):
-    """
-    Endpoint de webhook para receber updates do Telegram.
-    Configure o webhook no Telegram apontando para:
-      POST https://seu-dominio.com/api/v1/telegram/webhook
-    """
-    # Validar secret token opcional (configure no setWebhook com secret_token)
-    webhook_secret = getattr(settings, "TELEGRAM_WEBHOOK_SECRET", "")
-    if webhook_secret and x_telegram_bot_api_secret_token != webhook_secret:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
-
-    try:
-        body = await request.json()
-        update = TelegramUpdate.model_validate(body)
-
-        if update.message:
-            await _handle_message(update.message)
-
-        return {"ok": True}
-
-    except Exception as e:
-        logger.exception(f"Erro ao processar update do Telegram: {e}")
-        # Sempre retorna 200 para o Telegram não reenviar o update
-        return {"ok": False, "error": str(e)}
-
-
-@router.get("/status", summary="Status do Telegram Bot")
-async def telegram_status(db=Depends(get_db), current_user=Depends(get_current_user)):
-    """Verifica se o bot está configurado e se o usuário está vinculado."""
-    from app.services.telegram_service import TelegramService
-    token_configurado = bool(settings.TELEGRAM_BOT_TOKEN)
-    
-    if not token_configurado:
-        return {
-            "status": "not_configured",
-            "bot_configurado": False,
-            "vinculado": False
-        }
-        
-    ts = TelegramService()
-    status_vinculo = ts.get_status(current_user.id_usuario)
-    
-    return {
-        "status": "active",
-        "bot_configurado": True,
-        "vinculado": status_vinculo["vinculado"],
-        "codigo": status_vinculo["codigo"],
-        "username": status_vinculo.get("username")
-    }
-
-@router.post("/gerar-codigo", summary="Gera código de vinculação do Telegram")
-async def gerar_codigo_telegram(db=Depends(get_db), current_user=Depends(get_current_user)):
-    """Gera um código temporário para vincular o Telegram ao usuário logado."""
-    from app.services.telegram_service import TelegramService
-    ts = TelegramService()
-    codigo = ts.gerar_codigo(current_user.id_usuario)
-    return {"codigo": codigo}

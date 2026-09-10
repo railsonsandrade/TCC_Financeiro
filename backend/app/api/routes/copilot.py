@@ -4,6 +4,14 @@ Rotas do PatarIA - Assistente financeiro inteligente
 
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, status, Depends
+import socket
+
+# Força o uso de IPv4 para evitar timeouts longos (30s+) em máquinas com IPv6 problemático (Next.js proxy timeout)
+old_getaddrinfo = socket.getaddrinfo
+def new_getaddrinfo(*args, **kwargs):
+    responses = old_getaddrinfo(*args, **kwargs)
+    return [response for response in responses if response[0] == socket.AF_INET]
+socket.getaddrinfo = new_getaddrinfo
 from pydantic import BaseModel
 from app.schemas.usuario import UsuarioResponse
 from app.api.dependencies import get_current_user
@@ -203,8 +211,7 @@ async def call_ai_api(messages: list, context: str) -> str:
                 "messages": groq_messages,
                 "temperature": 0.7
             }
-            
-            response = requests.post(url, headers=headers, json=payload, timeout=30)
+            response = requests.post(url, headers=headers, json=payload, timeout=5)
             
             if response.status_code == 200:
                 data = response.json()
@@ -217,13 +224,11 @@ async def call_ai_api(messages: list, context: str) -> str:
             # Em caso de erro de timeout ou conexão com Groq, passamos para o Gemini
             pass
 
-    # ─── TENTATIVA 2: GEMINI (Fallback) ──────────────────────────────────
+    # ─── TENTATIVA 2: GEMINI (Fallback via REST) ─────────────────────────
     try:
-        import google.generativeai as genai
-
-        primary_key = getattr(settings, 'GEMINI_API_KEY', '').strip()
-        
-        api_keys = [k for k in [primary_key] if k]
+        import requests
+        gemini_api_key = (getattr(settings, "GEMINI_API_KEY", None) or "").strip()
+        api_keys = [k for k in [gemini_api_key] if k]
         
         if not api_keys:
             return "⚠️ As chaves de API não estão configuradas."
@@ -233,38 +238,28 @@ async def call_ai_api(messages: list, context: str) -> str:
             role = "Usuário" if msg.role == "user" else "PatarIA"
             full_prompt += f"{role}: {msg.content}\n\n"
 
-        models_to_try = [
-            'gemini-1.5-flash-002',
-            'gemini-1.5-flash-001',
-            'gemini-pro',
-            'gemini-1.5-pro-latest',
-        ]
-
+        models_to_try = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.1-pro-preview']
         errors_log = []
         
         for key in api_keys:
-            try:
-                genai.configure(api_key=key)
-                for model_name in models_to_try:
-                    try:
-                        model = genai.GenerativeModel(model_name)
-                        response = model.generate_content(full_prompt)
-                        return response.text
-                    except Exception as e:
-                        error_str = str(e)
+            for model_name in models_to_try:
+                try:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={key}"
+                    payload = {"contents": [{"parts": [{"text": full_prompt}]}]}
+                    res = requests.post(url, json=payload, timeout=15)
+                    
+                    if res.status_code == 200:
+                        data = res.json()
+                        return data["candidates"][0]["content"]["parts"][0]["text"]
+                    else:
+                        error_str = f"HTTP {res.status_code}: {res.text}"
                         errors_log.append(f"[Gemini: {model_name}] {error_str}")
-                        if any(err in error_str.lower() for err in ['429', '404', '403', 'quota', 'not found']):
-                            continue
-                        else:
-                            raise
-            except Exception as e:
-                errors_log.append(f"[Erro de Configuração] {str(e)}")
+                        
+                except Exception as e:
+                    errors_log.append(f"[Gemini: {model_name}] {str(e)}")
 
         formatted_errors = "\n".join(errors_log)
         return f"⚠️ IA Indisponível. O Groq e o Gemini falharam nestas tentativas:\n\n{formatted_errors}\n\nDica: Verifique se os limites foram batidos no Groq (groq.com) e no Gemini."
-
-    except ImportError:
-        return "⚠️ A biblioteca `google-generativeai` não está instalada (necessária para o fallback). Instale com: `pip install google-generativeai` e a `requests` para o Groq."
 
     except Exception as e:
         return f"⚠️ Erro crítico ao conectar com a IA: {str(e)}"

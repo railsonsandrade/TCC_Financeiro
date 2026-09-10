@@ -18,7 +18,8 @@ import {
   Bot,
   User,
   Sun,
-  Moon
+  Moon,
+  Smartphone
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -29,6 +30,7 @@ const navItems = [
   { href: '/dashboard/lancamentos', label: 'Lançamentos', icon: ArrowLeftRight },
   { href: '/dashboard/metas', label: 'Metas', icon: Target },
   { href: '/dashboard/importar', label: 'Importar', icon: Upload },
+  { href: '/dashboard/telegram', label: 'Telegram', icon: Smartphone },
   { href: '/dashboard/copilot', label: 'PatarIA', icon: Bot },
 ]
 

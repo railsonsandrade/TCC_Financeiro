@@ -59,13 +59,20 @@ export default function CopilotPage() {
       }
       setMessages([...updatedMessages, assistantMessage])
     } catch (err: any) {
-      const errMsg = err.response?.data?.detail || 'Erro ao conectar com a PatarIA. Verifique se a API de IA está configurada.'
-      setError(errMsg)
-      // Add error as assistant message
-      setMessages([...updatedMessages, {
-        role: 'assistant',
-        content: `⚠️ ${errMsg}\n\nPara configurar a PatarIA, adicione sua chave da API do Google Gemini no arquivo \`.env\` do backend:\n\`GEMINI_API_KEY=sua_chave_aqui\``,
-      }])
+      const status = err.response?.status
+      if (status === 401) {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: '⚠️ Sua sessão expirou. Por favor, faça login novamente para continuar conversando com a PatarIA.',
+        }]);
+      } else {
+        const errMsg = err.response?.data?.detail || 'Erro ao conectar com a PatarIA. Verifique se a API de IA está configurada.'
+        setError(errMsg)
+        setMessages([...updatedMessages, {
+          role: 'assistant',
+          content: `⚠️ ${errMsg}\n\nPara configurar a PatarIA, adicione sua chave da API do Google Gemini no arquivo \`.env\` do backend:\n\`GEMINI_API_KEY=sua_chave_aqui\``,
+        }])
+      }
     } finally {
       setLoading(false)
       inputRef.current?.focus()
