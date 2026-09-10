@@ -178,14 +178,14 @@ async def _handle_message(message: TelegramMessage) -> None:
     # Comandos autenticados
     if cmd == "saldo":
         try:
-            contas = ContaFinanceiraService().listar_contas(id_usuario)
+            contas = ContaFinanceiraService().listar_contas_com_saldo(id_usuario)
             if not contas:
                 await _send_message(chat_id, "Nenhuma conta financeira ativa encontrada.")
                 return
             linhas = ["💰 *Saldo das Contas*"]
             total = Decimal("0.0")
             for c in contas:
-                linhas.append(f"• {c.nome}: R$ {c.saldo_atual:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+                linhas.append(f"🔹 {c.nome}: R$ {c.saldo_atual:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
                 total += c.saldo_atual
             linhas.append(f"\n*Total:* R$ {total:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
             await _send_message(chat_id, "\n".join(linhas))
@@ -195,12 +195,22 @@ async def _handle_message(message: TelegramMessage) -> None:
     elif cmd == "resumo":
         try:
             hoje = date.today()
-            resumo = LancamentoService().get_resumo_mes(id_usuario, hoje.year, hoje.month)
+            import calendar
+            data_inicio = hoje.replace(day=1)
+            ultimo_dia = calendar.monthrange(hoje.year, hoje.month)[1]
+            data_fim = hoje.replace(day=ultimo_dia)
+            resumo = LancamentoService().obter_totais_periodo(id_usuario, data_inicio, data_fim)
+            
+            # Converter de volta para Decimal pois o service retorna str
+            rec = Decimal(str(resumo['total_receitas']))
+            desp = Decimal(str(resumo['total_despesas']))
+            saldo = Decimal(str(resumo['saldo']))
+            
             msg = (
-                f"📊 *Resumo do Mês ({hoje.month:02d}/{hoje.year})*\n\n"
-                f"📈 Receitas: R$ {resumo.total_receitas:,.2f}\n"
-                f"📉 Despesas: R$ {resumo.total_despesas:,.2f}\n"
-                f"💵 Saldo do Mês: R$ {resumo.saldo_mes:,.2f}"
+                f"📈 *Resumo do Mês ({hoje.month:02d}/{hoje.year})*\n\n"
+                f"🔼 Receitas: R$ {rec:,.2f}\n"
+                f"🔽 Despesas: R$ {desp:,.2f}\n"
+                f"💰 Saldo do Mês: R$ {saldo:,.2f}"
             ).replace(",", "X").replace(".", ",").replace("X", ".")
             await _send_message(chat_id, msg)
         except Exception as e:
@@ -212,7 +222,7 @@ async def _handle_message(message: TelegramMessage) -> None:
             if not lancamentos:
                 await _send_message(chat_id, "Nenhum lançamento recente.")
                 return
-            linhas = ["📄 *Últimos 10 lançamentos*"]
+            linhas = ["📋 *Últimos 10 lançamentos*"]
             for l in lancamentos:
                 icone = "🟢" if l.tipo == "Receita" else "🔴"
                 data_str = l.data.strftime("%d/%m")
@@ -228,10 +238,10 @@ async def _handle_message(message: TelegramMessage) -> None:
             if not metas:
                 await _send_message(chat_id, "Nenhuma meta ativa.")
                 return
-            linhas = ["🎯 *Metas Financeiras*"]
+            linhas = ["🎯 *Suas Metas*"]
             for m in metas:
-                pct = (m.valor_atual / m.valor_alvo * 100) if m.valor_alvo else 0
-                linhas.append(f"• {m.nome}: R$ {m.valor_atual:,.2f} / R$ {m.valor_alvo:,.2f} ({pct:.1f}%)".replace(",", "X").replace(".", ",").replace("X", "."))
+                pct = (m.valor_atual / m.valor_alvo) * 100 if m.valor_alvo > 0 else 0
+                linhas.append(f"🔹 {m.nome}: R$ {m.valor_atual:,.2f} / R$ {m.valor_alvo:,.2f} ({pct:.1f}%)".replace(",", "X").replace(".", ",").replace("X", "."))
             await _send_message(chat_id, "\n".join(linhas))
         except Exception as e:
             await _send_message(chat_id, f"Erro ao buscar metas: {e}")
@@ -254,14 +264,14 @@ async def _handle_message(message: TelegramMessage) -> None:
             
             contas = conta_svc.listar_contas(id_usuario)
             if not contas:
-                await _send_message(chat_id, f"❌ Crie uma conta no sistema primeiro.")
+                await _send_message(chat_id, f"⚠️ Crie uma conta no sistema primeiro.")
                 return
             id_conta = contas[0].id_conta
             
             categorias = cat_svc.listar_categorias(id_usuario)
             cat_match = next((c for c in categorias if c.tipo == tipo), None)
             if not cat_match:
-                await _send_message(chat_id, f"❌ Crie pelo menos uma categoria de {tipo} no sistema.")
+                await _send_message(chat_id, f"⚠️ Crie pelo menos uma categoria de {tipo} no sistema.")
                 return
                 
             lancamento = LancamentoCreate(
@@ -273,12 +283,12 @@ async def _handle_message(message: TelegramMessage) -> None:
                 descricao=desc,
                 pago=True
             )
-            lanc_svc.create(id_usuario, lancamento)
-            icone = "💸" if tipo == "Despesa" else "💰"
+            lanc_svc.criar_lancamento(id_usuario, lancamento)
+            icone = "🔴" if tipo == "Despesa" else "🟢"
             await _send_message(chat_id, f"✅ {icone} {tipo} de R$ {valor:,.2f} registrada com sucesso!".replace(",", "X").replace(".", ",").replace("X", "."))
             
         except Exception as e:
-            await _send_message(chat_id, f"❌ Erro ao registrar: verifique o formato do valor. Ex: `/{cmd} 50.50 Almoço`")
+            await _send_message(chat_id, f"❌ Erro ao registrar: verifique o formato do valor. Ex: `/{cmd} 50.50 Almoço`\n({e})")
 
     elif cmd == "copilot":
         if not args:
