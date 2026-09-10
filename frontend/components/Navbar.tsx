@@ -32,6 +32,7 @@ const navItems = [
   { href: '/dashboard/importar', label: 'Importar', icon: Upload },
   { href: '/dashboard/telegram', label: 'Telegram', icon: Smartphone },
   { href: '/dashboard/copilot', label: 'PatarIA', icon: Bot },
+  { href: '/dashboard/perfil', label: 'Perfil', icon: User },
 ]
 
 export default function Navbar() {

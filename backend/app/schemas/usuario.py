@@ -12,6 +12,7 @@ class UsuarioBase(BaseModel):
     """Schema base para Usuario"""
     nome: str = Field(..., min_length=3, max_length=150, description="Nome completo do usuário")
     email: EmailStr = Field(..., description="Email do usuário")
+    renda_mensal: Optional[float] = Field(0.00, description="Renda mensal informada pelo usuário")
 
 
 class UsuarioCreate(UsuarioBase):
@@ -24,6 +25,7 @@ class UsuarioUpdate(BaseModel):
     nome: Optional[str] = Field(None, min_length=3, max_length=150)
     email: Optional[EmailStr] = None
     senha: Optional[str] = Field(None, min_length=6, max_length=100)
+    renda_mensal: Optional[float] = Field(None, description="Renda mensal informada pelo usuário")
     ativo: Optional[bool] = None
 
 

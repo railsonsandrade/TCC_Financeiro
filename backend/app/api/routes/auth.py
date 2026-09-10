@@ -3,7 +3,7 @@ Rotas de autenticação
 """
 
 from fastapi import APIRouter, HTTPException, status, Depends
-from app.schemas.usuario import UsuarioLogin, Token, UsuarioCreate, UsuarioResponse
+from app.schemas.usuario import UsuarioLogin, Token, UsuarioCreate, UsuarioResponse, UsuarioUpdate
 from app.services.usuario_service import UsuarioService
 from app.api.dependencies import get_current_user
 
@@ -76,4 +76,24 @@ async def get_me(current_user: UsuarioResponse = Depends(get_current_user)):
     ```
     """
     return current_user
+
+@router.put("/me", response_model=UsuarioResponse, summary="Atualizar usuário autenticado")
+async def update_me(usuario_update: UsuarioUpdate, current_user: UsuarioResponse = Depends(get_current_user)):
+    """
+    Atualiza os dados do usuário autenticado.
+    """
+    try:
+        usuario_service = UsuarioService()
+        updated_user = usuario_service.atualizar_usuario(current_user.id_usuario, usuario_update)
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao atualizar usuário: {str(e)}"
+        )
 

@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [renda, setRenda] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
@@ -23,7 +24,8 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      await authAPI.register({ nome, email, senha })
+      const renda_mensal = parseFloat(renda) || 0
+      await authAPI.register({ nome, email, senha, renda_mensal })
       setToast({ message: 'Conta criada com sucesso! Redirecionando...', type: 'success' })
       setTimeout(() => {
         router.push('/login')
@@ -121,6 +123,24 @@ export default function RegisterPage() {
                   style={inputStyle}
                   placeholder="seu@sobcontrole.com"
                   required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground)' }}>Renda Mensal (R$)</label>
+              <div className="relative">
+                <input
+                  id="register-renda"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={renda}
+                  onChange={(e) => setRenda(e.target.value)}
+                  className={`w-full h-11 pl-4 pr-4 rounded-xl text-sm transition-all outline-none ${inputFocusClass}`}
+                  style={inputStyle}
+                  placeholder="0.00"
                   disabled={loading}
                 />
               </div>

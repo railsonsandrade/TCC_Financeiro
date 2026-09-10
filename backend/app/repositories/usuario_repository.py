@@ -28,14 +28,15 @@ class UsuarioRepository:
         senha_hash = SecurityUtils.hash_password(usuario.senha)
         
         query = """
-            INSERT INTO usuario (nome, email, senha_hash, data_criacao, ativo)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO usuario (nome, email, senha_hash, renda_mensal, data_criacao, ativo)
+            VALUES (?, ?, ?, ?, ?, ?)
         """
         
         params = (
             usuario.nome,
             usuario.email,
             senha_hash,
+            usuario.renda_mensal or 0.00,
             datetime.now(),
             True
         )
@@ -55,7 +56,7 @@ class UsuarioRepository:
             Usuario encontrado ou None
         """
         query = """
-            SELECT id_usuario, nome, email, senha_hash, data_criacao, data_atualizacao, ativo
+            SELECT id_usuario, nome, email, senha_hash, renda_mensal, data_criacao, data_atualizacao, ativo
             FROM usuario
             WHERE id_usuario = ?
         """
@@ -87,7 +88,7 @@ class UsuarioRepository:
             Usuario encontrado ou None
         """
         query = """
-            SELECT id_usuario, nome, email, senha_hash, data_criacao, data_atualizacao, ativo
+            SELECT id_usuario, nome, email, senha_hash, renda_mensal, data_criacao, data_atualizacao, ativo
             FROM usuario
             WHERE email = ?
         """
@@ -120,7 +121,7 @@ class UsuarioRepository:
             Lista de usuários
         """
         query = """
-            SELECT id_usuario, nome, email, senha_hash, data_criacao, data_atualizacao, ativo
+            SELECT id_usuario, nome, email, senha_hash, renda_mensal, data_criacao, data_atualizacao, ativo
             FROM usuario
             ORDER BY data_criacao DESC
             LIMIT ? OFFSET ?
@@ -168,6 +169,10 @@ class UsuarioRepository:
         if usuario.senha is not None:
             update_fields.append("senha_hash = ?")
             params.append(SecurityUtils.hash_password(usuario.senha))
+
+        if getattr(usuario, 'renda_mensal', None) is not None:
+            update_fields.append("renda_mensal = ?")
+            params.append(usuario.renda_mensal)
 
         if usuario.ativo is not None:
             update_fields.append("ativo = ?")

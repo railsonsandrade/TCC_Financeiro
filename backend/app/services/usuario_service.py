@@ -219,3 +219,15 @@ class UsuarioService:
             for u in usuarios
         ]
 
+    def atualizar_usuario(self, id_usuario: int, update_data: UsuarioUpdate) -> UsuarioResponse:
+        # Se estiver atualizando o email, verificar se ja existe
+        if update_data.email:
+            existing = self.repository.get_by_email(update_data.email)
+            if existing and existing.id_usuario != id_usuario:
+                raise ValueError(f"Email '{update_data.email}' já está em uso")
+                
+        usuario_db = self.repository.update(id_usuario, update_data)
+        if not usuario_db:
+            raise ValueError("Usuário não encontrado")
+        return UsuarioResponse.model_validate(usuario_db)
+

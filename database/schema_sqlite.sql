@@ -17,6 +17,7 @@ CREATE TABLE usuario (
     nome VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     senha_hash VARCHAR(255) NOT NULL,
+    renda_mensal DECIMAL(10,2) DEFAULT 0.00,
     data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     data_atualizacao DATETIME,
     ativo BOOLEAN NOT NULL DEFAULT 1,

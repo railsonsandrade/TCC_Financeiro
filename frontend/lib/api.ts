@@ -18,6 +18,7 @@ export interface Usuario {
     id_usuario: number;
     nome: string;
     email: string;
+    renda_mensal?: number;
     data_criacao: string;
     data_atualizacao?: string | null;
     ativo: boolean;
@@ -127,6 +128,14 @@ export interface RegisterRequest {
     email: string;
     senha: string;
     nome: string;
+    renda_mensal?: number;
+}
+
+export interface UpdateUserRequest {
+    nome?: string;
+    email?: string;
+    senha?: string;
+    renda_mensal?: number;
 }
 
 // ─── APIs ────────────────────────────────────────────────────────────────────
@@ -138,6 +147,8 @@ export const authAPI = {
         api.post<Usuario>('/api/v1/auth/register', data),
     me: () =>
         api.get<Usuario>('/api/v1/auth/me'),
+    updateMe: (data: UpdateUserRequest) =>
+        api.put<Usuario>('/api/v1/auth/me', data),
 };
 
 export const contasAPI = {
