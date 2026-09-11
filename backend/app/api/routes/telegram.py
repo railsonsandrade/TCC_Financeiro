@@ -330,13 +330,17 @@ async def telegram_webhook(
         update = TelegramUpdate.model_validate(body)
 
         if update.message:
-            await _handle_message(update.message)
+            try:
+                await _handle_message(update.message)
+            except Exception as e:
+                logger.exception(f"Erro ao processar comando do Telegram: {e}")
+                chat_id = update.message.chat.id
+                await _send_message(chat_id, f"⚠️ Ocorreu um erro interno ao processar seu comando: {e}")
 
         return {"ok": True}
 
     except Exception as e:
-        logger.exception(f"Erro ao processar update do Telegram: {e}")
-        # Sempre retorna 200 para o Telegram não reenviar o update
+        logger.exception(f"Erro no webhook do Telegram: {e}")
         return {"ok": False, "error": str(e)}
 
 
