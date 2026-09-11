@@ -29,6 +29,14 @@ def init_postgres_tables():
                     print("✅ Tabelas do PostgreSQL criadas com sucesso no Railway!")
             else:
                 print("ℹ️ Tabelas do PostgreSQL já existem no Railway.")
+
+            # Garantir que telegram_chat_id seja BIGINT (migração automática)
+            try:
+                cursor.execute("ALTER TABLE telegram_vinculos ALTER COLUMN telegram_chat_id TYPE BIGINT")
+                print("Tabelas PostgreSQL verificadas/criadas com sucesso. Tipo de telegram_chat_id garantido como BIGINT.")
+            except Exception as e:
+                print(f"Aviso durante ALTER TABLE (pode ser ignorado se já estiver correto): {e}")
+
     except Exception as e:
         print(f"⚠️ Erro ao verificar/inicializar tabelas no PostgreSQL: {e}")
 

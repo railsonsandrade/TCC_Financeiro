@@ -148,7 +148,7 @@ CREATE INDEX IF NOT EXISTS idx_dashboard_widget_usuario ON dashboard_widget(id_u
 CREATE TABLE IF NOT EXISTS telegram_vinculos (
     id_vinculo SERIAL PRIMARY KEY,
     id_usuario INTEGER NOT NULL,
-    telegram_chat_id INTEGER NOT NULL UNIQUE,
+    telegram_chat_id BIGINT NOT NULL UNIQUE,
     telegram_username VARCHAR(100),
     codigo_vinculo VARCHAR(10),
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
@@ -191,14 +191,4 @@ INNER JOIN categoria c ON l.id_categoria = c.id_categoria
 WHERE l.pago = TRUE
 GROUP BY l.id_usuario, c.id_categoria, c.nome, c.tipo, c.grupo_50_30_20, TO_CHAR(l.data, 'YYYY-MM');
 
--- Vincula um chat_id do Telegram a um usuario do sistema
-CREATE TABLE IF NOT EXISTS telegram_vinculos (
-    id_vinculo SERIAL PRIMARY KEY,
-    id_usuario INTEGER NOT NULL,
-    telegram_chat_id BIGINT NOT NULL UNIQUE,
-    telegram_username VARCHAR(100),
-    codigo_vinculo VARCHAR(10),
-    ativo BOOLEAN NOT NULL DEFAULT TRUE,
-    data_vinculo TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
-);
+
