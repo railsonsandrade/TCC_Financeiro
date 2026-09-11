@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+// Garante que a URL não termina com barra (/)
+const getBaseUrl = () => {
+    const url = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+    return url.replace(/\/+$/, '');
+};
+
 const api = axios.create({
-    baseURL: typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'),
+    baseURL: getBaseUrl(),
 });
 
 api.interceptors.request.use((config) => {
