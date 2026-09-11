@@ -113,7 +113,7 @@ export default function LoginPage() {
 
           {/* Subtext */}
           <p className="max-w-xl mx-auto mt-4 text-sm md:text-base leading-relaxed tracking-wide font-medium" style={{ color: 'var(--muted-foreground)' }}>
-            Plataforma inteligente que consolida suas contas, gerencia seus lançamentos e ajuda a alcançar suas metas financeiras sem esforço manual.
+            Plataforma inteligente que consolida suas contas, gerencia seus lançamentos e ajuda a alcançar suas metas financeiras!
           </p>
 
           {/* Stats Bar */}

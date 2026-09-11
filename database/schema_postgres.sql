@@ -16,7 +16,7 @@ CREATE TABLE usuario (
     data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     data_atualizacao TIMESTAMP,
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
-    
+    renda_mensal DECIMAL(10,2) DEFAULT 0.00
     CHECK (email LIKE '%_@__%.__%')
 );
 
