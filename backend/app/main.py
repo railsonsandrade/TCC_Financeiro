@@ -3,6 +3,8 @@ Sob Controle - API Principal
 Entry point da aplicação FastAPI
 """
 
+from slowapi.errors import RateLimitExceeded
+from app.utils.rate_limit import limiter, _rate_limit_exceeded_handler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
@@ -16,6 +18,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Configurar CORS
 app.add_middleware(

@@ -42,3 +42,5 @@ google-generativeai>=0.8.0
 
 # Requests sync (Groq API na PatarIA)
 requests>=2.31.0
+
+slowapi>=0.1.9

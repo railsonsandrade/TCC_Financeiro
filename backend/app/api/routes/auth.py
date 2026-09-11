@@ -2,17 +2,19 @@
 Rotas de autenticação
 """
 
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from app.schemas.usuario import UsuarioLogin, Token, UsuarioCreate, UsuarioResponse, UsuarioUpdate
 from app.services.usuario_service import UsuarioService
 from app.api.dependencies import get_current_user
+from app.utils.rate_limit import limiter
 
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
 
 
 @router.post("/login", response_model=Token, summary="Login de usuário")
-async def login(login_data: UsuarioLogin):
+@limiter.limit("5/minute")
+async def login(request: Request, login_data: UsuarioLogin):
     """
     Autentica um usuário e retorna um token JWT
     
@@ -39,7 +41,8 @@ async def login(login_data: UsuarioLogin):
 
 
 @router.post("/register", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED, summary="Registrar novo usuário")
-async def register(usuario: UsuarioCreate):
+@limiter.limit("3/minute")
+async def register(request: Request, usuario: UsuarioCreate):
     """
     Registra um novo usuário no sistema
     
