@@ -216,7 +216,17 @@ echo [INFO] Iniciando Frontend (porta 3000)...
 
 start "Frontend - Next.js" cmd /k "cd /d %BASE_DIR%frontend && npm run dev"
 
-timeout /t 8 /nobreak >nul
+timeout /t 5 /nobreak >nul
+
+REM ============================================================
+REM TELEGRAM BOT POLLER (LOCAL)
+REM ============================================================
+
+echo [INFO] Iniciando Telegram Dev Poller...
+
+start "Telegram Dev Poller" cmd /k "cd /d %BASE_DIR%backend && ..\venv\Scripts\python.exe scripts\telegram_dev_poller.py"
+
+timeout /t 3 /nobreak >nul
 
 REM ============================================================
 REM ABRIR NAVEGADOR
