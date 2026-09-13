@@ -14,19 +14,19 @@ Encontramos chaves de API reais e ativas salvas diretamente no código-fonte, o 
 
 1. **Chave do Groq API (Fallback)** em `backend/app/api/routes/copilot.py`:
    ```python
-   groq_api_key = getattr(settings, 'GROQ_API_KEY', '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')
+   groq_api_key = getattr(settings, 'GROQ_API_KEY', 'SUA_CHAVE_AQUI')
    ```
    *Correção:* A chave padrão deve ser removida e obtida exclusivamente através de `settings.GROQ_API_KEY`, que por sua vez deve ler do arquivo `.env` configurado na hospedagem.
    
 2. **Chave do Gemini API (Principal)** em `backend/app/api/routes/copilot.py`:
    ```python
-   fallback_key = 'AIzaSyDrQB_ymBSkDtf7yxFzTBrW8RYSoFVJ_XY'
+   fallback_key = os.getenv('GEMINI_API_KEY')
    ```
    *Correção:* Remova a string literal. A chave deve ser fornecida somente via variáveis de ambiente.
 
 3. **Chave do Gemini API no Script de Teste** em `test_genai.py`:
    ```python
-   genai.configure(api_key="AIzaSyB4OIOa6qOQdPJg3NAD0rdenTO71LZF_yA")
+   genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
    ```
    *Correção:* Este script é de desenvolvimento e possui chaves expostas. Ele deve ser removido ou adicionado ao `.gitignore`.
 
