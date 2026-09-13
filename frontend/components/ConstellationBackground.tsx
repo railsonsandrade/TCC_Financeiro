@@ -51,13 +51,19 @@ export default function ConstellationBackground() {
       // Number of particles depends on screen size (roughly 1 per 10000px^2)
       const particleCount = Math.floor((canvas.width * canvas.height) / 12000)
       
+      const getRandomFloat = () => {
+        const array = new Uint32Array(1);
+        crypto.getRandomValues(array);
+        return array[0] / (0xffffffff + 1);
+      };
+
       for (let i = 0; i < particleCount; i++) {
         particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.8,
-          vy: (Math.random() - 0.5) * 0.8,
-          radius: Math.random() * 1.5 + 0.5
+          x: getRandomFloat() * canvas.width,
+          y: getRandomFloat() * canvas.height,
+          vx: (getRandomFloat() - 0.5) * 0.8,
+          vy: (getRandomFloat() - 0.5) * 0.8,
+          radius: getRandomFloat() * 1.5 + 0.5
         })
       }
     }

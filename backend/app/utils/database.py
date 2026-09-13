@@ -187,7 +187,11 @@ class DatabaseConnection:
                     }
                     pk_col = pk_map.get(table_name, 'id')
 
-                returning_query = f"{query_converted} RETURNING {pk_col}"
+                from psycopg2 import sql
+                returning_query = sql.SQL("{} RETURNING {}").format(
+                    sql.SQL(query_converted),
+                    sql.Identifier(pk_col)
+                )
                 cursor.execute(returning_query, params)
                 result = cursor.fetchone()
                 if result:

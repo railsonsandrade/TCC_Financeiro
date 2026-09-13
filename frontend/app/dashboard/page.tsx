@@ -20,9 +20,17 @@ import {
 import DashboardGrid from '@/components/dashboard/DashboardGrid'
 import ModalCriarWidget from '@/components/dashboard/ModalCriarWidget'
 
-// ─── nanoid polyfill (não depende do módulo externo se não instalado) ─────────
+// === nanoid polyfill (não depende do módulo externo se não instalado) ===
 function uid() {
-  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36)
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback seguro
+  const array = new Uint32Array(1);
+  if (typeof crypto !== 'undefined') {
+    crypto.getRandomValues(array);
+  }
+  return array[0].toString(36) + Date.now().toString(36);
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
